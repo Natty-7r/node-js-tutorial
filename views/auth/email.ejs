@@ -1,0 +1,13 @@
+<%- include('../includes/head.ejs') %>
+    <link rel="stylesheet" href="/css/forms.css">
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+
+<body>
+   <%- include('../includes/navigation.ejs') %>
+
+    <main>
+        <h2> click the link to varify resetting</h2>
+        <a href="/reset/<%=resetToken%>">verify reset</a>
+    </main>
+<%- include('../includes/end.ejs') %>

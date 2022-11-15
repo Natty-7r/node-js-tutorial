@@ -1,0 +1,34 @@
+.form-login {
+	position: relative;
+	display: flex;
+	flex-flow: column;
+	align-items: center;
+	width: 50%;
+	height: 300px;
+	padding: 40px;
+	margin: auto;
+	border: solid thin rgba(0, 0, 0, 0.398);
+	border-radius: 5px;
+}
+.form-login .form-control {
+	width: 200px !important;
+	margin: 5px;
+}
+.error-massage {
+	color: rgb(186, 30, 30);
+	position: fixed;
+	top: 75px;
+	left: 50%;
+	transform: translate(-50%, 0);
+	background-color: lightsalmon;
+	/* padding: 7px 20px; */
+}
+.logIn {
+	text-transform: uppercase;
+}
+.btns {
+	display: flex;
+	justify-content: space-between;
+	gap: 40px;
+	margin-top: 30px;
+}

@@ -1,0 +1,57 @@
+<%- include('../includes/head.ejs') %>
+<link href="/css/cart.css" rel="stylesheet" />
+    </head>
+
+    <body>
+        <%- include('../includes/navigation.ejs') %>
+        <main class="centered">
+           <%if(!cart|| cart.products.length==0){%>
+           <h1> No product added to cart</h1>
+           <%} else {%>
+            <h2>
+                <table>
+                    <thead>
+                        <td>Product </td>
+                        <td> Quantity </td>
+                        <td><form action="/cart/deleteAll" method="POST">
+                            <!-- <input type="hidden" name="_csrf" value="<%=csrfToken%>"/>
+                            <input type="submit" value="Delete all" /> -->
+                            <a href="/getinvoice/me" target="_blank">invoice</a>
+
+                        </form>
+                        </td>
+                        
+                       
+                    </thead>
+                </table>
+            </h2>
+
+           
+          <%cart.products.forEach(product=>{%>
+            <h2>
+                <table>
+                    <tbody>
+                        <tr>
+                        <td><%= product.title%></td>
+                        <td><%= product.dataValues.cartItem.dataValues.quantity%></td>
+                        <td><form action="/cart/<%= product.id%>" method="POST">
+                            <input type="hidden" name="id" value="<%= product.id%>" />
+                            <input type="hidden" name="_csrf" value="<%=csrfToken%>"/>
+                            <input type="submit" value="Delete cart" />
+
+                        </form>
+                        </td>
+                     </tr>
+                    </tbody>
+                </table>
+            </h2>
+        
+           <% })%>
+           <h2>Total price:  
+            <span> $<%=cart.totalPrice%></span>
+           </h2>
+           <%}%>
+
+
+        </main>
+        <%- include('../includes/end.ejs') %>

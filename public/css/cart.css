@@ -1,0 +1,11 @@
+table {
+	margin: auto;
+}
+table td {
+	width: 120px;
+	/* text-align: left; */
+	padding-left: 12px;
+}
+table thead td {
+	border-bottom: solid lavender;
+}
