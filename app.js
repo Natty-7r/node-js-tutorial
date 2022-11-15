@@ -1,8 +1,13 @@
 const main = function () {
 	const { Sequelize, Op, QueryTypes, HSTORE } = require('sequelize');
+
+	// core modules
 	const path = require('path');
+	const fs = require('fs');
 	const url = require('url');
 	const crypto = require('crypto');
+
+	// third party modules
 	const express = require('express');
 	const bodyParser = require('body-parser');
 	const cookieParser = require('cookie-parser');
@@ -10,19 +15,19 @@ const main = function () {
 	const csrf = require('csurf');
 	const bcrypt = require('bcrypt');
 	const nodemailer = require('nodemailer');
-
+	const sequelizeStore = require('connect-session-sequelize')(session.Store);
+	const flash = require('connect-flash');
+	// my imports
 	const adminRoutes = require('./routes/admin');
 	const shopRoutes = require('./routes/shop');
 	const authRoutes = require('./routes/auth');
 	const errorController = require('./controllers/error');
-	const sequelizeStore = require('connect-session-sequelize')(session.Store);
 
 	const sequelize = require('./path/db');
 	const Cart = require('./models/cart');
 	const CartItem = require('./models/cartItem');
 	const Product = require('./models/product');
 	const User = require('./models/user');
-	const fs = require('fs');
 
 	const app = express();
 
@@ -46,6 +51,7 @@ const main = function () {
 	);
 	app.use(cookieParser());
 	app.use(csrf());
+	app.use(flash());
 
 	app.use(async (req, res, next) => {
 		if (req.session.isLoggedIn) {

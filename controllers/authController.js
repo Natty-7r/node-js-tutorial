@@ -8,7 +8,7 @@ exports.getLogin = (req, res, next) => {
 	res.render('../views/auth/login.ejs', {
 		pageTitle: 'LognIn',
 		path: '/login',
-		logInError: '',
+		logInError: req.flash('logInError')[0],
 	});
 };
 exports.postLogin = (req, res, next) => {
@@ -17,24 +17,15 @@ exports.postLogin = (req, res, next) => {
 
 	User.findOne({ where: { email } }).then((user) => {
 		if (!user) {
-			return res.render('../views/auth/login.ejs', {
-				pageTitle: 'LognIn',
-				authentication: isLoggedIn,
-				path: '/login',
-				logInError: 'Unrecognized Email !',
-				user: req.session.user,
-			});
+			req.flash('logInError', 'unrecognized Email !');
+			return res.redirect('/login');
 		}
 		if (user) {
 			bcrytp.compare(password, user.password).then((areEqual) => {
-				if (!areEqual)
-					return res.render('../views/auth/login.ejs', {
-						pageTitle: 'LognIn',
-						authentication: isLoggedIn,
-						path: '/login',
-						logInError: 'invalid Email or  Password !',
-						user: req.session.user,
-					});
+				if (!areEqual) {
+					req.flash('logInError', 'invalid   Password !');
+					return res.redirect('/login');
+				}
 				return (() => {
 					req.session.user = user;
 					req.session.isLoggedIn = true;
