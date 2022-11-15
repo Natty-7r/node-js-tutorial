@@ -45,17 +45,16 @@ const main = function () {
 		})
 	);
 	app.use(cookieParser());
-	// app.use(csrf());
+	app.use(csrf());
 
 	app.use(async (req, res, next) => {
 		if (req.session.isLoggedIn) {
 			const userSaved = req.session.user;
-
 			res.locals.user = userSaved;
 			const user = await User.findOne({ where: { email: userSaved.email } });
 			if (user.password === userSaved.password) req.user = user;
 		}
-		res.locals.csrfToken = 'kk';
+		res.locals.csrfToken = req.csrfToken();
 		res.locals.authentication = req.session?.isLoggedIn;
 		next();
 	});
