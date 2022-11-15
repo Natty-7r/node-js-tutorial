@@ -49,31 +49,20 @@ exports.getSignup = (req, res, next) => {
 		path: '/signup',
 		email: '',
 		authentication: false,
-		signupError: '',
+		signupError: req.flash('signupError'),
 	});
 };
 exports.postSignup = (req, res, next) => {
 	let { email, password, confirmPassword } = req.body;
 	const validationError = validationResult(req);
 	if (!validationError.isEmpty()) {
-		console.log(validationError.array()[0]);
-		return res.status(422).render('../views/auth/signup', {
-			pageTitle: 'Sign up',
-			path: '/signup',
-			email: email,
-			authentication: false,
-			signupError: validationError.array()[0].msg,
-		});
+		req.flash('signupError', validationError.array()[0].msg);
+		return res.status(422).redirect('/signup');
 	}
 	User.findOne({ where: { email } }).then((user) => {
 		if (user) {
-			return res.render('../views/auth/signup', {
-				pageTitle: 'Sign up',
-				path: '/signup',
-				logInError: ' Email already exits try another one !',
-				authentication: false,
-				email,
-			});
+			req.flash('signupError', 'Email already exits try another one !');
+			return res.status(422).redirect('/signup');
 		}
 		if (!user) {
 			bcrytp.hash(password, 12).then((hashPassword) => {
@@ -100,26 +89,22 @@ exports.getReset = (req, res, next) => {
 	res.render('../views/auth/reset.ejs', {
 		pageTitle: 'Reset',
 		path: '/reset',
-		logInError: '',
+		logInError: req.flash('resetError'),
 	});
 };
 exports.postReset = (req, res, next) => {
 	let resetToken, resetTokenExpiration;
 	const validationError = validationResult(req);
 	if (!validationError.isEmpty()) {
-		return res.render('../views/auth/reset.ejs', {
-			pageTitle: 'Reset',
-			path: '/login',
-			logInError: 'invlaid email !',
-		});
+		req.flash('resetError', 'invlaid email !');
+		return res.status(422).redirect('/reset');
 	}
 	User.findOne({ where: { email: req.body.email } }).then((user) => {
-		if (!user)
-			return res.render('../views/auth/reset.ejs', {
-				pageTitle: 'Reset',
-				path: '/login',
-				logInError: ' unrecognized Email !',
-			});
+		if (!user) {
+			req.flash('resetError', 'unrecognized Email !');
+			return res.status(422).redirect('/reset');
+		}
+
 		crypto.randomBytes(32, (err, buffer) => {
 			if (err) {
 				console.log(err);
