@@ -21,6 +21,7 @@ const main = function () {
 	const sendgridTransport = require('nodemailer-sendgrid-transport');
 
 	// my imports
+	const mainRoot = require('./util/path');
 	const adminRoutes = require('./routes/admin');
 	const shopRoutes = require('./routes/shop');
 	const authRoutes = require('./routes/auth');
@@ -40,6 +41,26 @@ const main = function () {
 			},
 		})
 	);
+	const multerStorage = multer.diskStorage({
+		destination: (req, file, cb) => {
+			cb(null, path.join(mainRoot, 'public', 'images'));
+		},
+		filename: (req, file, cb) => {
+			cb(null, `image_${Date.now().toString()}_${file.originalname}`);
+		},
+	});
+	const multerFilter = (req, file, cb) => {
+		if (
+			file.mimetype == 'image/png' ||
+			file.mimetype == 'image/jpg' ||
+			file.mimetype == 'image/jpeg'
+		)
+			cb(null, true);
+		else {
+			req.fileError = 'error';
+			cb(null, false);
+		}
+	};
 
 	// main code
 	const app = express();
@@ -53,10 +74,6 @@ const main = function () {
 	app.use(express.static(path.join(__dirname, 'public')));
 	app.use(express.static(path.join(__dirname, 'public/images')));
 	app.use(
-		(req, res, next) => {
-			console.log(req.body, req.method, 'bbbbbbbbbbbbbbb');
-			next();
-		},
 		session({
 			secret: ['this_is_the_longest_phrase_of_mine__next7'],
 			saveUninitialized: false,
@@ -65,7 +82,9 @@ const main = function () {
 			cookie: {},
 		})
 	);
-	app.use(multer({ dest: '/uploads' }).single('image'));
+	app.use(
+		multer({ storage: multerStorage, fileFilter: multerFilter }).single('image')
+	);
 	app.use(cookieParser());
 	app.use(csrf());
 	app.use(flash());

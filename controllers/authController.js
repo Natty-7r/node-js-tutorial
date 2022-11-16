@@ -67,7 +67,7 @@ exports.postSignup = (req, res, next) => {
 		if (!user) {
 			bcrytp.hash(password, 12).then((hashPassword) => {
 				User.create({
-					id: `id_${Date.now().toString()}`,
+					// id: `id_${Date.now().toString()}`,
 					email,
 					password: hashPassword,
 					username: email.split('@')[0],
