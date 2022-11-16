@@ -169,7 +169,7 @@ exports.deleteProduct = (req, res, next) => {
 	Product.findOne({ where: { id: prodId } }).then((product) => {
 		deleteImageSource(product.imgUrl);
 		product.destroy();
-		res.status(200).json({
+		res.status(200).redirect({
 			message: 'success',
 		});
 	});
