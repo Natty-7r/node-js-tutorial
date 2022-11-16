@@ -107,7 +107,7 @@ exports.postReset = (req, res, next) => {
 
 		crypto.randomBytes(32, (err, buffer) => {
 			if (err) {
-				console.log(err);
+				req.flash('resetError', 'resetting failed try again ');
 				return redirect('/reset');
 			}
 			resetToken = buffer.toString('hex');

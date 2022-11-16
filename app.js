@@ -34,7 +34,7 @@ const main = function () {
 		sendgridTransport({
 			auth: {
 				api_key:
-					'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',
+					'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',
 			},
 		})
 	);
@@ -74,12 +74,6 @@ const main = function () {
 		res.locals.csrfToken = req.csrfToken();
 		res.locals.authentication = req.session?.isLoggedIn;
 		next();
-		transporter.sendMail({
-			to: 'nati7fekadu@gmail.com',
-			from: 'forprojectsnatty@gmai.com',
-			subject: 'email trial',
-			html: '<h1>email sent</h1>',
-		});
 	});
 	app.use('/admin', adminRoutes);
 	app.use(shopRoutes);
@@ -104,5 +98,16 @@ const main = function () {
 
 	app.listen(8080);
 	// -------------------
+
+	const sender = async () => {
+		const info = await transporter.sendMail({
+			to: 'nati7fekadu@gmail.com',
+			from: 'forprojectnatty@gmail.com',
+			subject: 'email trial',
+			html: '<h1>email sent</h1>',
+		});
+		console.log(info);
+	};
+	// sender();
 };
 main();
