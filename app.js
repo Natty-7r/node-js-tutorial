@@ -16,8 +16,10 @@ const main = function () {
 	const bcrypt = require('bcrypt');
 	const sequelizeStore = require('connect-session-sequelize')(session.Store);
 	const flash = require('connect-flash');
+	const multer = require('multer');
 	const nodemailer = require('nodemailer');
 	const sendgridTransport = require('nodemailer-sendgrid-transport');
+
 	// my imports
 	const adminRoutes = require('./routes/admin');
 	const shopRoutes = require('./routes/shop');
@@ -46,11 +48,15 @@ const main = function () {
 	app.set('views', 'views');
 	app.set('trust proxy', 1);
 	app.use(bodyParser.urlencoded({ extended: false }));
+	app.use(bodyParser.json());
 	app.use(express.static(path.join(__dirname, 'public')));
 	app.use(express.static(path.join(__dirname, 'public')));
 	app.use(express.static(path.join(__dirname, 'public/images')));
-
 	app.use(
+		(req, res, next) => {
+			console.log(req.body, req.method, 'bbbbbbbbbbbbbbb');
+			next();
+		},
 		session({
 			secret: ['this_is_the_longest_phrase_of_mine__next7'],
 			saveUninitialized: false,
@@ -59,6 +65,7 @@ const main = function () {
 			cookie: {},
 		})
 	);
+	app.use(multer({ dest: '/uploads' }).single('image'));
 	app.use(cookieParser());
 	app.use(csrf());
 	app.use(flash());

@@ -1,21 +1,21 @@
 <%- include('../includes/head.ejs') %>
 <link rel="stylesheet" href="/css/forms.css">
 <link rel="stylesheet" href="/css/product.css">
-<%if(reupload){%> 
+
 <link rel="stylesheet" href="/css/auth.css">
-<%}%>
+
 </head>
 
 <body>
    <%- include('../includes/navigation.ejs') %>
 
     <main>
-        <%if(reupload){%> 
-            <form class="product-form" action="/admin/add-product" method="POST" enctype="multipart/form-data">
+      
+            <form class="product-form" action="/admin/add-product" method="POST" enctype="multipart/form-data" >
                 <div class="error-massage"><%=uploadError%> </div>
                 <div class="form-control">
                     <label for="title">Title</label>
-                    <input type="text" name="title" id="title" value="<%=product.title%>">
+                    <input type="text" name="title" id="title" value="<%=product?.title%>">
                 </div>
                 <div class="form-control form-control-img">
                     <label for="image">Image </label>
@@ -25,11 +25,11 @@
                
                 <div class="form-control">
                     <label for="price">Price</label>
-                    <input type="number" name="price" id="price" step="0.01" value = "<%=product.price%>">
+                    <input type="number" name="price" id="price" step="0.01" value = "<%=product?.price%>">
                 </div>
                 <div class="form-control">
                     <label for="description">Description</label>
-                    <textarea name="description" id="description" rows="5" value = ""><%=product.description%></textarea>
+                    <textarea name="description" id="description" rows="5" value = ""><%=product?.description%></textarea>
 
                     <input type="hidden" name="_csrf" value="<%=csrfToken%>"/>
                 </div>
@@ -38,32 +38,5 @@
                     Add Product</button>
             </form>
     
-       <%} else if(!reupload){%>
-
-        <form class="product-form" action="/admin/add-product" method="POST" enctype="multipart/form-data">
-            <div class="form-control">
-                <label for="title">Title</label>
-                <input type="text" name="title" id="title">
-            </div>
-            <div class="form-control form-control-img">
-                <label for="image">Image </label>
-                <input type="file" name="image" id="image"/>
-            </div>
-         
-            <div class="form-control">
-                <label for="price">Price</label>
-                <input type="number" name="price" id="price" step="0.01">
-            </div>
-            <div class="form-control">
-                <label for="description">Description</label>
-                <textarea name="description" id="description" rows="5"></textarea>
-                
-                <input type="hidden" name="_csrf" value="<%=csrfToken%>"/>
-            </div>
-           
-            <input type="hidden" name="owner" value="<%=user.username%>"/>
-            <button class="btn" type="submit">Add Product</button>
-        </form>
-        <%}%>
     </main>
 <%- include('../includes/end.ejs') %>

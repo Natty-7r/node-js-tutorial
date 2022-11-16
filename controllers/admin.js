@@ -31,7 +31,8 @@ exports.getAddProduct = (req, res, next) => {
 			formsCSS: true,
 			productCSS: true,
 			activeAddProduct: true,
-			reupload: false,
+			uploadError: req.flash('uploadError')[0],
+			product: req.flash('product')[0],
 		});
 	});
 };
@@ -45,30 +46,16 @@ exports.postAddProduct = async (req, res, next) => {
 	const validationError = validationResult(req);
 	if (!validationError.isEmpty()) {
 		const product = { title, imgUrl, price, description, owner };
-		return res.status(422).render('admin/add-product', {
-			pageTitle: 'Add Product',
-			path: '/admin/add-product',
-			formsCSS: true,
-			productCSS: true,
-			activeAddProduct: true,
-			product,
-			reupload: true,
-			uploadError: validationError.array()[0].msg,
-		});
+		req.flash('uploadError', validationError.array()[0].msg),
+			req.flash('product', product);
+		return res.redirect('/admin/add-product');
 	}
 	if (!imgUrl)
 		return User.findAll().then((users) => {
 			const product = { title, imgUrl, price, description, owner };
-			return res.status(422).render('admin/add-product', {
-				pageTitle: 'Add Product',
-				path: '/admin/add-product',
-				formsCSS: true,
-				productCSS: true,
-				activeAddProduct: true,
-				product,
-				reupload: true,
-				uploadError: 'The file attached  is is not image',
-			});
+			req.flash('uploadError', 'The file attached  is is not image'),
+				req.flash('product', product);
+			return res.redirect('/admin/add-product');
 		});
 
 	const product = { title, imgUrl, price, description, owner };
