@@ -65,7 +65,10 @@ exports.getCart = (req, res, next) => {
 	let totalPrice;
 	req.user
 		.getCart()
-		.then((cart) => cart?.getProducts())
+		.then((cart) => {
+			if (!cart) return [];
+			return cart?.getProducts();
+		})
 		.then((cartProducts) => {
 			if (cartProducts.length > 0) {
 				totalPrice = cartProducts.reduce(

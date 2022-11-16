@@ -31,8 +31,6 @@ exports.getAddProduct = (req, res, next) => {
 			formsCSS: true,
 			productCSS: true,
 			activeAddProduct: true,
-			user,
-			csrfToken: '',
 			reupload: false,
 		});
 	});
@@ -53,7 +51,6 @@ exports.postAddProduct = async (req, res, next) => {
 			formsCSS: true,
 			productCSS: true,
 			activeAddProduct: true,
-			csrfToken: '',
 			product,
 			reupload: true,
 			uploadError: validationError.array()[0].msg,
@@ -68,7 +65,6 @@ exports.postAddProduct = async (req, res, next) => {
 				formsCSS: true,
 				productCSS: true,
 				activeAddProduct: true,
-				csrfToken: '',
 				product,
 				reupload: true,
 				uploadError: 'The file attached  is is not image',

@@ -41,7 +41,7 @@
 		<ul class="main-header__item-list">
 			<li class="main-header__item">
 				<div class="logIn">
-					<%if(authentication){ %> <%=user?.username%><%}%>
+					<%if(authentication){ %> <%=user.username%><%}%>
 					<%if(!authentication){%>
 					<a
 						class="<%= path === '/login' ? 'active' : '' %> signing"

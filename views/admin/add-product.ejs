@@ -20,7 +20,6 @@
                 <div class="form-control form-control-img">
                     <label for="image">Image </label>
                     <input  type="file" name="image" id="image"/>
-                    <input type="hidden" name="_csrf" value="<%=csrfToken%>"/>
                     <input type="hidden" name="owner" value="<%=user.username%>"/>
                 </div>
                
@@ -31,6 +30,7 @@
                 <div class="form-control">
                     <label for="description">Description</label>
                     <textarea name="description" id="description" rows="5" value = ""><%=product.description%></textarea>
+
                     <input type="hidden" name="_csrf" value="<%=csrfToken%>"/>
                 </div>
     
@@ -49,10 +49,7 @@
                 <label for="image">Image </label>
                 <input type="file" name="image" id="image"/>
             </div>
-            <!-- <div class="form-control form-control-img">
-                <label for="imageUrl">Image URL</label>
-                <input type="text" name="imageUrl" id="imageUrl">
-            </div> -->
+         
             <div class="form-control">
                 <label for="price">Price</label>
                 <input type="number" name="price" id="price" step="0.01">
@@ -60,9 +57,10 @@
             <div class="form-control">
                 <label for="description">Description</label>
                 <textarea name="description" id="description" rows="5"></textarea>
+                
+                <input type="hidden" name="_csrf" value="<%=csrfToken%>"/>
             </div>
            
-            <input type="hidden" name="_csrf" value="<%=csrfToken%>"/>
             <input type="hidden" name="owner" value="<%=user.username%>"/>
             <button class="btn" type="submit">Add Product</button>
         </form>
