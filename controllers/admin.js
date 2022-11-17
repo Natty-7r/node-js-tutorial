@@ -7,19 +7,7 @@ const { Op, where } = require('sequelize');
 const path = require('path');
 const { validationResult } = require('express-validator');
 const { dirname } = require('path');
-
-const deleteImageSource = function (filename) {
-	const filePath = path.join(
-		dirname(process.mainModule.filename),
-		'public',
-		'images',
-		filename
-	);
-	fs.unlink(filePath, (err) => {
-		if (err) return Promise.resolve(false);
-		return Promise.resolve(true);
-	});
-};
+const mainRoot = require('../util/path');
 
 //-
 exports.getAddProduct = (req, res, next) => {
@@ -166,11 +154,15 @@ exports.getProducts = (req, res, next) => {
 };
 exports.deleteProduct = (req, res, next) => {
 	const prodId = req.params.prodId;
-	Product.findOne({ where: { id: prodId } }).then((product) => {
-		deleteImageSource(product.imgUrl);
-		product.destroy();
-		res.status(200).redirect({
-			message: 'success',
+	Product.findOne({ where: { id: prodId } }).then((productToDelete) => {
+		productToDelete.destroy((productsCount) => {
+			console.log(productsCount, 'ppppppppppppppp');
+			fs.unlink(
+				path.join(mainRoot, 'public', 'images', productToDelete.imgUrl),
+				(err) => {
+					res.redirect('/admin/products');
+				}
+			);
 		});
 	});
 };
