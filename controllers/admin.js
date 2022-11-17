@@ -9,6 +9,19 @@ const { validationResult } = require('express-validator');
 const { dirname } = require('path');
 const mainRoot = require('../util/path');
 
+const deleteImageSource = function (filename) {
+	const filePath = path.join(
+		dirname(process.mainModule.filename),
+		'public',
+		'images',
+		filename
+	);
+	return fs.unlink(filePath, (err) => {
+		if (err) return Promise.resolve(false);
+		return Promise.resolve(true);
+	});
+};
+
 //-
 exports.getAddProduct = (req, res, next) => {
 	User.findAll().then((users) => {
@@ -156,10 +169,10 @@ exports.deleteProduct = (req, res, next) => {
 	const prodId = req.params.prodId;
 	Product.findOne({ where: { id: prodId } }).then((productToDelete) => {
 		productToDelete.destroy((productsCount) => {
-			console.log(productsCount, 'ppppppppppppppp');
 			fs.unlink(
 				path.join(mainRoot, 'public', 'images', productToDelete.imgUrl),
 				(err) => {
+					if (err) console.log(err);
 					res.redirect('/admin/products');
 				}
 			);
