@@ -104,7 +104,11 @@ const main = function () {
 	app.use(shopRoutes);
 	app.use(authRoutes);
 
+	app.use('/500', errorController.get500);
 	app.use(errorController.get404);
+	app.use((err, req, res, next) => {
+		res.redirect('/500');
+	});
 
 	Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 	User.hasMany(Product);

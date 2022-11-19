@@ -24,8 +24,7 @@ const deleteImageSource = function (filename) {
 
 //-
 exports.getAddProduct = (req, res, next) => {
-	User.findAll().then((users) => {
-		const user = users[0];
+	try {
 		res.render('admin/add-product', {
 			pageTitle: 'Add Product',
 			path: '/admin/add-product',
@@ -35,81 +34,84 @@ exports.getAddProduct = (req, res, next) => {
 			uploadError: req.flash('uploadError')[0],
 			product: req.flash('product')[0],
 		});
-	});
+	} catch (error) {
+		const err = new Error(error);
+		err.statusCode = 500;
+		return next(err);
+	}
 };
 exports.postAddProduct = async (req, res, next) => {
-	const title = req.body.title;
-	const imgUrl = req?.file?.filename;
-	const price = req.body.price;
-	const description = req.body.description;
-	const owner = req.body.owner;
+	try {
+		const title = req.body.title;
+		const imgUrl = req?.file?.filename;
+		const price = req.body.price;
+		const description = req.body.description;
+		const owner = req.body.owner;
 
-	const validationError = validationResult(req);
-	if (!validationError.isEmpty()) {
-		const product = { title, imgUrl, price, description, owner };
-		req.flash('uploadError', validationError.array()[0].msg),
-			req.flash('product', product);
-		return res.redirect('/admin/add-product');
-	}
-	if (!imgUrl)
-		return User.findAll().then((users) => {
+		const validationError = validationResult(req);
+		if (!validationError.isEmpty()) {
 			const product = { title, imgUrl, price, description, owner };
-			req.flash('uploadError', 'The file attached  is is not image'),
+			req.flash('uploadError', validationError.array()[0].msg),
 				req.flash('product', product);
 			return res.redirect('/admin/add-product');
-		});
+		}
+		if (!imgUrl)
+			return User.findAll().then((users) => {
+				const product = { title, imgUrl, price, description, owner };
+				req.flash('uploadError', 'The file attached  is is not image'),
+					req.flash('product', product);
+				return res.redirect('/admin/add-product');
+			});
 
-	const product = { title, imgUrl, price, description, owner };
-	req.user
-		.createProduct({
-			title,
-			price,
-			description,
-			imgUrl,
-			owner,
-		})
-		.then(() => {
-			res.redirect('/products');
-		});
-};
-
-exports.editProduct = (req, res, next) => {
-	const prodId = req.params.prodId;
-	// Product.findAll({ where: { id: prodId } })
-	req.user.getProducts({ where: { id: prodId } }).then(([product]) => {
-		res.render('admin/edit-product', {
-			pageTitle: 'Edit Product',
-			path: '/product',
-			product,
-			uploadError: '',
-		});
-	});
-};
-exports.editProductPost = (req, res, next) => {
-	const prodId = req.body.id;
-	const newTitle = req.body.title;
-	const imgUrl = req?.file?.filename;
-	const newPrice = req.body.price;
-	const newDescription = req.body.description;
-	const validationError = validationResult(req);
-	if (!validationError.isEmpty()) {
-		const product = {
-			id: prodId,
-			title: newTitle,
-			imgUrl,
-			price: newPrice,
-			description: newDescription,
-		};
-		return res.status(422).render('admin/edit-product', {
-			pageTitle: 'Edit Product',
-			path: '/product',
-			csrfToken: '',
-			product,
-			uploadError: validationError.array()[0].msg,
-		});
+		const product = { title, imgUrl, price, description, owner };
+		req.user
+			.createProduct({
+				title,
+				price,
+				description,
+				imgUrl,
+				owner,
+			})
+			.then(() => {
+				res.redirect('/products');
+			})
+			.catch((err) => {
+				throw new Error(err);
+			});
+	} catch (error) {
+		const err = new Error(error);
+		err.statusCode = 500;
+		return next(err);
 	}
-	if (!imgUrl)
-		return User.findAll().then((users) => {
+};
+
+exports.editProduct = async (req, res, next) => {
+	const prodId = req.params.prodId;
+	req.user
+		.getProducts({ where: { id: prodId } })
+		.then(([product]) => {
+			res.render('admin/edit-product', {
+				pageTitle: 'Edit Product',
+				path: '/product',
+				product,
+				uploadError: '',
+			});
+		})
+		.catch((error) => {
+			const err = new Error(error);
+			err.statusCode = 500;
+			return next(err);
+		});
+};
+exports.editProductPost = async (req, res, next) => {
+	try {
+		const prodId = req.body.id;
+		const newTitle = req.body.title;
+		const imgUrl = req?.file?.filename;
+		const newPrice = req.body.price;
+		const newDescription = req.body.description;
+		const validationError = validationResult(req);
+		if (!validationError.isEmpty()) {
 			const product = {
 				id: prodId,
 				title: newTitle,
@@ -118,27 +120,49 @@ exports.editProductPost = (req, res, next) => {
 				description: newDescription,
 			};
 			return res.status(422).render('admin/edit-product', {
-				pageTitle: 'Add Product',
-				path: '/admin/add-product',
-				formsCSS: true,
-				productCSS: true,
-				activeAddProduct: true,
+				pageTitle: 'Edit Product',
+				path: '/product',
 				csrfToken: '',
 				product,
-				reupload: true,
-				uploadError: 'The file type is is not image !',
+				uploadError: validationError.array()[0].msg,
 			});
-		});
+		}
+		if (!imgUrl)
+			return User.findAll().then((users) => {
+				const product = {
+					id: prodId,
+					title: newTitle,
+					imgUrl,
+					price: newPrice,
+					description: newDescription,
+				};
+				return res.status(422).render('admin/edit-product', {
+					pageTitle: 'Add Product',
+					path: '/admin/add-product',
+					formsCSS: true,
+					productCSS: true,
+					activeAddProduct: true,
+					csrfToken: '',
+					product,
+					reupload: true,
+					uploadError: 'The file type is is not image !',
+				});
+			});
 
-	req.user.getProducts({ where: { id: prodId } }).then(([productFound]) => {
-		deleteImageSource(productFound.imgUrl);
-		productFound.title = newTitle;
-		productFound.imgUrl = imgUrl;
-		productFound.price = newPrice;
-		productFound.description = newDescription;
-		productFound.save();
-		res.redirect('/admin/products');
-	});
+		req.user.getProducts({ where: { id: prodId } }).then(([productFound]) => {
+			deleteImageSource(productFound.imgUrl);
+			productFound.title = newTitle;
+			productFound.imgUrl = imgUrl;
+			productFound.price = newPrice;
+			productFound.description = newDescription;
+			productFound.save();
+			res.redirect('/admin/products');
+		});
+	} catch (error) {
+		const err = new Error(error);
+		err.statusCode = 500;
+		return next(err);
+	}
 };
 
 exports.getProducts = (req, res, next) => {
@@ -163,19 +187,29 @@ exports.getProducts = (req, res, next) => {
 				});
 			});
 		})
-		.catch((err) => console.error(err));
-};
-exports.deleteProduct = (req, res, next) => {
-	const prodId = req.params.prodId;
-	Product.findOne({ where: { id: prodId } }).then((productToDelete) => {
-		productToDelete.destroy((productsCount) => {
-			fs.unlink(
-				path.join(mainRoot, 'public', 'images', productToDelete.imgUrl),
-				(err) => {
-					if (err) console.log(err);
-					res.redirect('/admin/products');
-				}
-			);
+		.catch((error) => {
+			const err = new Error(error);
+			err.statusCode = 500;
+			return next(err);
 		});
-	});
+};
+exports.deleteProduct = async (req, res, next) => {
+	try {
+		const prodId = req.params.prodId;
+		Product.findOne({ where: { id: prodId } }).then((productToDelete) => {
+			productToDelete.destroy((productsCount) => {
+				fs.unlink(
+					path.join(mainRoot, 'public', 'images', productToDelete.imgUrl),
+					(err) => {
+						if (err) console.log(err);
+						res.redirect('/admin/products');
+					}
+				);
+			});
+		});
+	} catch (error) {
+		const err = new Error(error);
+		err.statusCode = 500;
+		return next(err);
+	}
 };

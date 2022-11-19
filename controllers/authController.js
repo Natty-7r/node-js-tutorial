@@ -149,31 +149,39 @@ exports.getNewPassword = (req, res, next) => {
 	});
 };
 exports.resetPassword = (req, res, next) => {
-	const { password, confirmPassword, username } = req.body;
-	const validationError = validationResult(req);
-	if (!validationError.isEmpty()) {
-		return res.render('../views/auth/resetDone.ejs', {
-			pageTitle: 'Reset',
-			path: '/reset',
-			logInError: validationError.array()[0].msg,
-			username,
-		});
-	}
+	try {
+		const { password, confirmPassword, username } = req.body;
+		const validationError = validationResult(req);
+		if (!validationError.isEmpty()) {
+			return res.render('../views/auth/resetDone.ejs', {
+				pageTitle: 'Reset',
+				path: '/reset',
+				logInError: validationError.array()[0].msg,
+				username,
+			});
+		}
 
-	let userFound;
-	User.findOne({ where: { username } })
-		.then((user) => {
-			userFound = user;
-			return bcrytp.hash(password, 12);
-		})
-		.then((hashPassword) => {
-			userFound.password = hashPassword;
-			userFound.resetToken = null;
-			userFound.resetTokenExpiration = null;
-			return userFound.save();
-		})
-		.then((result) => {
-			res.redirect('/login');
-		})
-		.catch((err) => console.log(err));
+		let userFound;
+		User.findOne({ where: { username } })
+			.then((user) => {
+				userFound = user;
+				return bcrytp.hash(password, 12);
+			})
+			.then((hashPassword) => {
+				userFound.password = hashPassword;
+				userFound.resetToken = null;
+				userFound.resetTokenExpiration = null;
+				return userFound.save();
+			})
+			.then((result) => {
+				res.redirect('/login');
+			})
+			.catch((err) => {
+				throw new Error(err);
+			});
+	} catch (err) {
+		const error = new Error(console.error());
+		error.statusCode = 500;
+		res.redirect('/500');
+	}
 };
