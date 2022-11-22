@@ -33,7 +33,7 @@ router.post(
 	validateAddproduct,
 	adminController.editProductPost
 );
-router.delete('/products/:prodId', isAuth, adminController.deleteProduct);
+router.get('/delete/:prodId', isAuth, adminController.deleteProduct);
 
 router.post('/add-product/:prodid', isAuth, adminController.deleteProduct);
 

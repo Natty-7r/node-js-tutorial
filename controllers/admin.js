@@ -196,16 +196,15 @@ exports.getProducts = (req, res, next) => {
 exports.deleteProduct = async (req, res, next) => {
 	try {
 		const prodId = req.params.prodId;
-		Product.findOne({ where: { id: prodId } }).then((productToDelete) => {
-			productToDelete.destroy((productsCount) => {
-				fs.unlink(
-					path.join(mainRoot, 'public', 'images', productToDelete.imgUrl),
-					(err) => {
-						if (err) console.log(err);
-						res.redirect('/admin/products');
-					}
-				);
-			});
+		const productToDelete = await Product.findOne({ where: { id: prodId } });
+		productToDelete.destroy((productsCount) => {
+			fs.unlink(
+				path.join(mainRoot, 'public', 'images', productToDelete.imgUrl),
+				(err) => {
+					if (err) next(err);
+					res.redirect('/admin/products');
+				}
+			);
 		});
 	} catch (error) {
 		const err = new Error(error);

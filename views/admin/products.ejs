@@ -33,7 +33,7 @@
                                         <input type="hidden" name="productId" value="<%= product.id%>" />
                                         <input type="hidden" name="_csrf" value="<%=csrfToken%>"/>
                                         <br />
-                                        <button class="btn deleteProduct" >Delete</button>
+                                        <a href="/admin/delete/<%=product.id %>" class="btn deleteProduct" >Delete</a>
                         
                                     </div>
 
@@ -46,5 +46,5 @@
                         <h1>No Products Found!</h1>
                         <% } %>
             </main>
-            <script src="/js/admin.js"></script>
+            <!-- <script src="/js/admin.js"></script> -->
             <%- include('../includes/end.ejs') %>
