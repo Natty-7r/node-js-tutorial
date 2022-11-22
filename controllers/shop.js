@@ -170,23 +170,14 @@ exports.getCheckout = (req, res, next) => {
 	});
 };
 exports.getInvoice = (req, res, next) => {
-	const root = dirname(process.mainModule.filename);
-	const filename = req.params.invoiceId + '.pdf';
-	const filepath = path.join(root, 'data', 'invoice', filename);
-	const fileReadableStream = fs.createReadStream(filepath);
-	res.setHeader(
-		'Content-Disposition',
-		'attachement;filename="' + filename + '"'
-	);
-	fileReadableStream.pipe(res);
+	const mainRoot = dirname(process.mainModule.filename);
+	let fileName = req.params.invoiceId + '.pdf';
+	fileName = 'me.pdf';
+	const filePath = path.join(mainRoot, 'data', 'invoice', fileName);
+	const fileReadableStream = fs.createReadStream(filePath);
 
-	// fs.readFile(filepath, (err, data) => {
-	// 	if (err) return console.log(err);
-	// 	res.setHeader('Content-Type', 'video/mp4');
-	// 	res.setHeader(
-	// 		'Content-Disposition',
-	// 		'attachement;filename="' + filename + '"'
-	// 	);
-	// 	res.send(data);
-	// });
+	res.setHeader('Content-Type', 'application/pdf');
+	res.setHeader('Content-Disposition', `inline;filename="${fileName}"`);
+
+	fileReadableStream.pipe(res);
 };

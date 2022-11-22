@@ -107,6 +107,7 @@ const main = function () {
 	app.use('/500', errorController.get500);
 	app.use(errorController.get404);
 	app.use((err, req, res, next) => {
+		console.log(err);
 		res.redirect('/500');
 	});
 
