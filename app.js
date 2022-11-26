@@ -27,7 +27,7 @@ const main = function () {
 	const authRoutes = require('./routes/auth');
 	const errorController = require('./controllers/error');
 
-	const sequelize = require('./path/db');
+	// const sequelize = require('./path/db');
 	const Cart = require('./models/cart');
 	const CartItem = require('./models/cartItem');
 	const Product = require('./models/product');
@@ -73,21 +73,27 @@ const main = function () {
 	app.use(express.static(path.join(__dirname, 'public')));
 	app.use(express.static(path.join(__dirname, 'public')));
 	app.use(express.static(path.join(__dirname, 'public/images')));
-	app.use(
-		session({
-			secret: ['this_is_the_longest_phrase_of_mine__next7'],
-			saveUninitialized: false,
-			resave: false,
-			store: new sequelizeStore({ db: sequelize }),
-			cookie: {},
-		})
-	);
+	// app.use(
+	// 	session({
+	// 		secret: ['this_is_the_longest_phrase_of_mine__next7'],
+	// 		saveUninitialized: false,
+	// 		resave: false,
+	// 		store: new sequelizeStore({ db: sequelize }),
+	// 		cookie: {},
+	// 	})
+	// );
 	app.use(
 		multer({ storage: multerStorage, fileFilter: multerFilter }).single('image')
 	);
 	app.use(cookieParser());
-	app.use(csrf());
+	// app.use(csrf());
 	app.use(flash());
+
+	// for working case 
+	app.use((req,res,next)=>{
+		console.log(req.baseUrl,'baseeeeeeeeee')
+		next();
+	})
 
 	app.use(async (req, res, next) => {
 		if (req.session.isLoggedIn) {
@@ -107,7 +113,7 @@ const main = function () {
 	app.use('/500', errorController.get500);
 	app.use(errorController.get404);
 	app.use((err, req, res, next) => {
-		console.log(err);
+		// console.log(err);
 		res.redirect('/500');
 	});
 
@@ -120,11 +126,11 @@ const main = function () {
 	Cart.belongsToMany(Product, { through: CartItem });
 	Product.belongsToMany(Cart, { through: CartItem });
 
-	sequelize
-		// .sync({ force: true })
-		.sync()
-		.then(() => {})
-		.catch((err) => console.log(err));
+	// sequelize
+	// 	// .sync({ force: true })
+	// 	.sync()
+	// 	.then(() => {})
+	// 	.catch((err) => console.log(err));
 
 	app.listen(8080);
 	// -------------------
@@ -138,6 +144,34 @@ const main = function () {
 		});
 		console.log(info);
 	};
+	const  { CourierClient } = require('@trycourier/courier')
+	const sender2 = async()=>{
+		
+
+const courier = CourierClient({ authorizationToken: "<AUTH_TOKEN>" }); // get from the Courier UI
+
+// Example: send a basic message to an email recipient
+const { requestId } = await courier.send({
+  message: {
+    to: {
+      data: {
+        name: "Marty",
+      },
+      email: "marty_mcfly@email.com",
+    },
+    content: {
+      title: "Back to the Future",
+      body: "Oh my {{name}}, we need 1.21 Gigawatts!",
+    },
+    routing: {
+      method: "single",
+      channels: ["email"],
+    },
+  },
+});
+	}
 	// sender();
+	
+
 };
 main();
