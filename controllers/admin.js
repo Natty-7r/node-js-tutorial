@@ -1,5 +1,5 @@
 const fs = require('fs');
-
+const mongodb =  require('mongodb');
 const Cart = require('../models/cart');
 const Product = require('../models/product');
 const User = require('../models/user');
@@ -8,10 +8,10 @@ const path = require('path');
 const { validationResult } = require('express-validator');
 const { dirname } = require('path');
 const mainRoot = require('../util/path');
-const {getDb} =  require('../path/mongoDb')
+const {getDb, mongodbConnect} =  require('../path/mongoDb')
 
 
-const deleteImageSource = function (filename) {
+deleteImageSource = async  function (filename) {
 	const filePath = path.join(
 		dirname(process.mainModule.filename),
 		'public',
@@ -45,25 +45,25 @@ exports.getAddProduct = (req, res, next) => {
 exports.postAddProduct = async (req, res, next) => {
 	try {
 		const title = req.body.title;
-		const imgUrl = req?.file?.filename;
+		const imageUrl = req?.file?.filename;
 		const price = req.body.price;
 		const description = req.body.description;
 		const userId =  req.session.user._id.toString();
 
 		const validationError = validationResult(req);
 		if (!validationError.isEmpty()) {
-			const product = { title, imgUrl, price, description, };
+			const product = { title, imageUrl, price, description, };
 			req.flash('uploadError', validationError.array()[0].msg),
 				req.flash('product', product);
 			return res.redirect('/admin/add-product');
 		}
-		if (!imgUrl){
-				const product = { title, imgUrl, price, description, userId };
+		if (!imageUrl){
+				const product = { title, price, description,imageUrl, userId };
 				req.flash('uploadError', 'The file attached  is is not image'),
 					req.flash('product', product);
 				return res.redirect('/admin/add-product');
 			};
-		const product = new  Product(title,imgUrl,price,description,userId);
+		const product = new  Product(title,price,description,imageUrl,userId);
 		product.save();	
 		res.redirect('/admin/products')
 			
@@ -75,33 +75,35 @@ exports.postAddProduct = async (req, res, next) => {
 };
 
 exports.getEditProduct = async (req, res, next) => {
+	try{
 	const prodId = req.params.prodId;
-	 const product = await Product.findById(prodId);
+	const product = await Product.findById(prodId);
 			res.render('admin/edit-product', {
 				pageTitle: 'Edit Product',
 				path: '/product',
 				product,
 				uploadError: '',
 			});
-		// .catch((error) => {
-		// 	const err = new Error(error);
-		// 	err.statusCode = 500;
-		// 	return next(err);
-		// });
+		}
+		catch(error) {
+			const err = new Error(error);
+			err.statusCode = 500;
+			return next(err);
+		}
 };
 exports.editProductPost = async (req, res, next) => {
 	try {
-		const prodId = req.body._id;
+		const prodId = req.body.prodId;
 		const newTitle = req.body.title;
-		const newImgUrl = req?.file?.filename;
+		const newImageUrl = req?.file?.filename;
 		const newPrice = req.body.price;
 		const newDescription = req.body.description;
 		const validationError = validationResult(req);
 		if (!validationError.isEmpty()) {
 			const product = {
-				id: prodId,
+				_id: prodId,
 				title: newTitle,
-				newImgUrl,
+				imageUrl:null,
 				price: newPrice,
 				description: newDescription,
 			};
@@ -112,11 +114,11 @@ exports.editProductPost = async (req, res, next) => {
 				uploadError: validationError.array()[0].msg,
 			});
 		}
-		if (!newImgUrl){
+		if (!newImageUrl){
 				const product = {
-					id: prodId,
+					_id: prodId,
 					title: newTitle,
-					newImgUrl,
+					imageUrl:null,
 					price: newPrice,
 					description: newDescription,
 				};
@@ -132,10 +134,18 @@ exports.editProductPost = async (req, res, next) => {
 				});
 			}
 			
-          const product =  new Product(newTitle, newImgUrl,newPrice.newDescription,req.session.user._id,prodId);
-		 await product.save();
-		//    deleteImageSource((await Product.findById(prodId)).imageUrl);
+          const product =  new Product(
+			newTitle,
+			newPrice,
+			newDescription,
+			newImageUrl,
+			req.session.user._id.toString(),
+			new mongodb.ObjectId(prodId)
+			);
+			const productToDelete  = await  Product.findById(prodId);
+			await product.save();
 			res.redirect('/admin/products');
+	    deleteImageSource(productToDelete.imageUrl);
 		
 	} catch (error) {
 		const err = new Error(error);
@@ -146,7 +156,7 @@ exports.editProductPost = async (req, res, next) => {
 
 exports.getProducts = async (req, res, next) => {
 
-		// try{
+		try{
 			const userId =  req.session.user._id;
 			const userProducts =  await Product.findUserProducts(userId);
 			
@@ -158,26 +168,21 @@ exports.getProducts = async (req, res, next) => {
 				pageNumber:1,
 				linkPath: '/products',
 			});
-		// }
-		// catch(error) {
-		// 	const err = new Error(error);
-		// 	err.statusCode = 500;
-		// 	return next(err);
-		// };
+		}
+		catch(error) {
+			const err = new Error(error);
+			err.statusCode = 500;
+			return next(err);
+		};
 };
 exports.deleteProduct = async (req, res, next) => {
 	try {
 		const prodId = req.params.prodId;
-		const productToDelete = await Product.findOne({ where: { id: prodId } });
-		productToDelete.destroy((productsCount) => {
-			fs.unlink(
-				path.join(mainRoot, 'public', 'images', productToDelete.imgUrl),
-				(err) => {
-					if (err) next(err);
-					res.redirect('/admin/products');
-				}
-			);
-		});
+		const productToDelete = await Product.findById(prodId);
+         deleteImageSource(prodId);
+		 Product.deleteProduct(prodId);
+		res.redirect('/admin/products');
+		
 	} catch (error) {
 		const err = new Error(error);
 		err.statusCode = 500;

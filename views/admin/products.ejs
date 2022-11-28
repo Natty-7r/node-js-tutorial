@@ -30,10 +30,10 @@
                                 <div class="card__actions">
                                     <a href="/admin/edit-product/<%=product._id %>" class="btn">Edit</a>
                                     <div class="inputs">
-                                        <input type="hidden" name="productId" value="<%= product.id%>" />
+                                        <input type="hidden" name="productId" value="<%= product._id%>" />
                                         <input type="hidden" name="_csrf" value="<%=csrfToken%>"/>
                                         <br />
-                                        <a href="/admin/delete/<%=product.id %>" class="btn deleteProduct" >Delete</a>
+                                        <a href="/admin/delete/<%=product._id %>" class="btn deleteProduct" >Delete</a>
                         
                                     </div>
 
