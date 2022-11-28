@@ -17,7 +17,7 @@
                                     </h1>
                                 </header>
                                 <div class="card__image">
-                                    <img src="/images/<%= product.imgUrl %>" alt="<%= product.title %>">
+                                    <img src="/images/<%= product.imageUrl %>" alt="<%= product.title %>">
                                 </div>
                                 <div class="card__content">
                                     <h2 class="product__price">$
@@ -28,7 +28,7 @@
                                     </p>
                                 </div>
                                 <div class="card__actions">
-                                    <a href="/admin/edit-product/<%=product.id %>" class="btn">Edit</a>
+                                    <a href="/admin/edit-product/<%=product._id %>" class="btn">Edit</a>
                                     <div class="inputs">
                                         <input type="hidden" name="productId" value="<%= product.id%>" />
                                         <input type="hidden" name="_csrf" value="<%=csrfToken%>"/>

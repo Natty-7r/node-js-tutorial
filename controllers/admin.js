@@ -8,6 +8,8 @@ const path = require('path');
 const { validationResult } = require('express-validator');
 const { dirname } = require('path');
 const mainRoot = require('../util/path');
+const {getDb} =  require('../path/mongoDb')
+
 
 const deleteImageSource = function (filename) {
 	const filePath = path.join(
@@ -46,68 +48,52 @@ exports.postAddProduct = async (req, res, next) => {
 		const imgUrl = req?.file?.filename;
 		const price = req.body.price;
 		const description = req.body.description;
-		const owner = req.body.owner;
+		const userId =  req.session.user._id.toString();
 
 		const validationError = validationResult(req);
 		if (!validationError.isEmpty()) {
-			const product = { title, imgUrl, price, description, owner };
+			const product = { title, imgUrl, price, description, };
 			req.flash('uploadError', validationError.array()[0].msg),
 				req.flash('product', product);
 			return res.redirect('/admin/add-product');
 		}
-		if (!imgUrl)
-			return User.findAll().then((users) => {
-				const product = { title, imgUrl, price, description, owner };
+		if (!imgUrl){
+				const product = { title, imgUrl, price, description, userId };
 				req.flash('uploadError', 'The file attached  is is not image'),
 					req.flash('product', product);
 				return res.redirect('/admin/add-product');
-			});
-
-		const product = { title, imgUrl, price, description, owner };
-		req.user
-			.createProduct({
-				title,
-				price,
-				description,
-				imgUrl,
-				owner,
-			})
-			.then(() => {
-				res.redirect('/products');
-			})
-			.catch((err) => {
-				throw new Error(err);
-			});
+			};
+		const product = new  Product(title,imgUrl,price,description,userId);
+		product.save();	
+		res.redirect('/admin/products')
+			
 	} catch (error) {
 		const err = new Error(error);
 		err.statusCode = 500;
-		return next(err);
+		 next(err);
 	}
 };
 
-exports.editProduct = async (req, res, next) => {
+exports.getEditProduct = async (req, res, next) => {
 	const prodId = req.params.prodId;
-	req.user
-		.getProducts({ where: { id: prodId } })
-		.then(([product]) => {
+	 const product = await Product.findById(prodId);
 			res.render('admin/edit-product', {
 				pageTitle: 'Edit Product',
 				path: '/product',
 				product,
 				uploadError: '',
 			});
-		})
-		.catch((error) => {
-			const err = new Error(error);
-			err.statusCode = 500;
-			return next(err);
-		});
+		// .catch((error) => {
+		// 	const err = new Error(error);
+		// 	err.statusCode = 500;
+		// 	return next(err);
+		// });
 };
 exports.editProductPost = async (req, res, next) => {
 	try {
-		const prodId = req.body.id;
+		const prodId = req.body._id;
 		const newTitle = req.body.title;
-		const imgUrl = req?.file?.filename;
+		const newImgUrl = req?.file?.filename;
 		const newPrice = req.body.price;
 		const newDescription = req.body.description;
 		const validationError = validationResult(req);
@@ -115,24 +101,22 @@ exports.editProductPost = async (req, res, next) => {
 			const product = {
 				id: prodId,
 				title: newTitle,
-				imgUrl,
+				newImgUrl,
 				price: newPrice,
 				description: newDescription,
 			};
 			return res.status(422).render('admin/edit-product', {
 				pageTitle: 'Edit Product',
 				path: '/product',
-				csrfToken: '',
 				product,
 				uploadError: validationError.array()[0].msg,
 			});
 		}
-		if (!imgUrl)
-			return User.findAll().then((users) => {
+		if (!newImgUrl){
 				const product = {
 					id: prodId,
 					title: newTitle,
-					imgUrl,
+					newImgUrl,
 					price: newPrice,
 					description: newDescription,
 				};
@@ -142,22 +126,17 @@ exports.editProductPost = async (req, res, next) => {
 					formsCSS: true,
 					productCSS: true,
 					activeAddProduct: true,
-					csrfToken: '',
 					product,
 					reupload: true,
 					uploadError: 'The file type is is not image !',
 				});
-			});
-
-		req.user.getProducts({ where: { id: prodId } }).then(([productFound]) => {
-			deleteImageSource(productFound.imgUrl);
-			productFound.title = newTitle;
-			productFound.imgUrl = imgUrl;
-			productFound.price = newPrice;
-			productFound.description = newDescription;
-			productFound.save();
+			}
+			
+          const product =  new Product(newTitle, newImgUrl,newPrice.newDescription,req.session.user._id,prodId);
+		 await product.save();
+		//    deleteImageSource((await Product.findById(prodId)).imageUrl);
 			res.redirect('/admin/products');
-		});
+		
 	} catch (error) {
 		const err = new Error(error);
 		err.statusCode = 500;
@@ -165,33 +144,26 @@ exports.editProductPost = async (req, res, next) => {
 	}
 };
 
-exports.getProducts = (req, res, next) => {
-	const productPerPage = 2;
-	const pageNumber = req.query?.page ?? 1;
+exports.getProducts = async (req, res, next) => {
 
-	Product.count({ where: { userId: req.user.id } })
-		.then((productsNumber) => {
-			const pages = Math.round(productsNumber / productPerPage);
-			return Product.findAll({
-				offset: (pageNumber - 1) * productPerPage,
-				limit: productPerPage,
-				where: { userId: req.user.id },
-			}).then((products) => {
-				return res.render('admin/products', {
-					pageTitle: 'All products',
-					path: '/admin/products',
-					prods: products,
-					pages: pages,
-					pageNumber,
-					linkPath: '/products',
-				});
+		// try{
+			const userId =  req.session.user._id;
+			const userProducts =  await Product.findUserProducts(userId);
+			
+			return res.render('admin/products', {
+				pageTitle: 'All products',
+				path: '/admin/products',
+				prods: userProducts,
+				pages: 1,
+				pageNumber:1,
+				linkPath: '/products',
 			});
-		})
-		.catch((error) => {
-			const err = new Error(error);
-			err.statusCode = 500;
-			return next(err);
-		});
+		// }
+		// catch(error) {
+		// 	const err = new Error(error);
+		// 	err.statusCode = 500;
+		// 	return next(err);
+		// };
 };
 exports.deleteProduct = async (req, res, next) => {
 	try {

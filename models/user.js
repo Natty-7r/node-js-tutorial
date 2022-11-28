@@ -1,19 +1,20 @@
-const { Sequelize, Model, Op, DataTypes, DATE } = require('sequelize');
-const sequelize = require('../path/db');
-class User extends Model {}
-User.init(
-	{
-		id: {
-			type: DataTypes.INTEGER,
-			autoIncrement: true,
-			primaryKey: true,
-		},
-		username: DataTypes.STRING,
-		email: DataTypes.STRING,
-		password: DataTypes.STRING,
-		resetToken: DataTypes.STRING,
-		resetTokenExpiration: DataTypes.DATE,
-	},
-	{ sequelize, modelName: 'user', timestamps: false }
-);
-module.exports = User;
+const getDb =  require('../path/mongoDb').getDb;
+const bcrypt =  require('bcrypt');
+
+class User{
+	 constructor(email,password){
+			this.email =  email;
+			this.password  = password;	
+			this.username = email.split('@')[0];
+	}
+	 save(){
+		const UserCollection =  getDb().collection('users');
+		return   UserCollection.insertOne(this);
+	}
+	static async findUser(email){
+		const UserCollection =  getDb().collection('users');
+		return UserCollection.find({email}).next();
+	}
+
+}
+module.exports =  User;

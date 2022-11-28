@@ -3,6 +3,7 @@ const bcrytp = require('bcrypt');
 const User = require('../models/user');
 const { Op } = require('sequelize');
 const { validationResult } = require('express-validator');
+const {getDb} =  require('../path/mongoDb')
 
 exports.getLogin = (req, res, next) => {
 	res.render('../views/auth/login.ejs', {
@@ -11,11 +12,10 @@ exports.getLogin = (req, res, next) => {
 		logInError: req.flash('logInError')[0],
 	});
 };
-exports.postLogin = (req, res, next) => {
+exports.postLogin = async  (req, res, next) => {
 	const isLoggedIn = false;
 	const { email, password } = req.body;
-
-	User.findOne({ where: { email } }).then((user) => {
+    let user  = await User.findUser(email);
 		if (!user) {
 			req.flash('logInError', 'unrecognized Email !');
 			return res.redirect('/login');
@@ -33,7 +33,7 @@ exports.postLogin = (req, res, next) => {
 				})();
 			});
 		}
-	});
+	
 };
 
 exports.logout = (req, res, next) => {
@@ -52,38 +52,27 @@ exports.getSignup = (req, res, next) => {
 		signupError: req.flash('signupError'),
 	});
 };
-exports.postSignup = (req, res, next) => {
+exports.postSignup =  async (req, res, next) => {
+	
 	let { email, password, confirmPassword } = req.body;
 	const validationError = validationResult(req);
 	if (!validationError.isEmpty()) {
 		req.flash('signupError', validationError.array()[0].msg);
 		return res.status(422).redirect('/signup');
 	}
-	User.findOne({ where: { email } }).then((user) => {
-		if (user) {
-			req.flash('signupError', 'Email already exits try another one !');
-			return res.status(422).redirect('/signup');
-		}
-		if (!user) {
-			bcrytp.hash(password, 12).then((hashPassword) => {
-				User.create({
-					// id: `id_${Date.now().toString()}`,
-					email,
-					password: hashPassword,
-					username: email.split('@')[0],
-				})
-					.then((user) => {
-						return User.findOne({ where: { email: user.email } });
-					})
-					.then((user) => {
-						req.session.user = user;
-						req.session.isLoggedIn = true;
-						user.createCart({ id: 333 + user.id });
-						res.redirect('/');
-					});
-			});
-		}
-	});
+    let user =  await User.findUser(email);
+	if (user) {
+		req.flash('signupError','User exists');
+		return res.status(422).redirect('/signup');
+	}
+	const hashPassword = await bcrytp.hash(password,12);
+	user =  new User(email,hashPassword);
+	 user.save();
+	 user =  await User.findUser(email);
+	 req.session.user =  user;
+	 req.session.isLoggedIn = true;
+	 res.redirect('/');
+	
 };
 
 exports.getReset = (req, res, next) => {

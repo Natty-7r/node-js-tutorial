@@ -23,9 +23,9 @@ const validateAddproduct = [
 // /admin/add-product => GET
 
 // /admin/products => GET
-router.get('/products', isAuth, adminController.getProducts);
+router.get('/products',isAuth, adminController.getProducts);
 
-router.get('/edit-product/:prodId', isAuth, adminController.editProduct);
+router.get('/edit-product/:prodId', isAuth, adminController.getEditProduct);
 
 router.post(
 	'/edit-product',

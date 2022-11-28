@@ -1,4 +1,4 @@
-const main = function () {
+
 	const { Sequelize, Op, QueryTypes, HSTORE } = require('sequelize');
 
 	// core modules
@@ -19,6 +19,7 @@ const main = function () {
 	const multer = require('multer');
 	const nodemailer = require('nodemailer');
 	const sendgridTransport = require('nodemailer-sendgrid-transport');
+	const mongodbSession =  require('connect-mongodb-session')(session);
 
 	// my imports
 	const mainRoot = require('./util/path');
@@ -27,20 +28,11 @@ const main = function () {
 	const authRoutes = require('./routes/auth');
 	const errorController = require('./controllers/error');
 
-	// const sequelize = require('./path/db');
-	const Cart = require('./models/cart');
-	const CartItem = require('./models/cartItem');
-	const Product = require('./models/product');
-	const User = require('./models/user');
-	// function to use
-	const transporter = nodemailer.createTransport(
-		sendgridTransport({
-			auth: {
-				api_key:
-					'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',
-			},
-		})
-	);
+	const {mongodbConnect,getDb}=  require('./path/mongoDb');
+	const Product =  require('./models/product')
+
+
+
 	const multerStorage = multer.diskStorage({
 		destination: (req, file, cb) => {
 			cb(null, path.join(mainRoot, 'public', 'images'));
@@ -61,6 +53,11 @@ const main = function () {
 			cb(null, false);
 		}
 	};
+	const sessionStorage =  new mongodbSession(
+		{uri:'mongodb://0.0.0.0:27017/'
+		,databaseName:'shop',
+		collection:'userSessions'
+	});
 
 	// main code
 	const app = express();
@@ -73,39 +70,34 @@ const main = function () {
 	app.use(express.static(path.join(__dirname, 'public')));
 	app.use(express.static(path.join(__dirname, 'public')));
 	app.use(express.static(path.join(__dirname, 'public/images')));
-	// app.use(
-	// 	session({
-	// 		secret: ['this_is_the_longest_phrase_of_mine__next7'],
-	// 		saveUninitialized: false,
-	// 		resave: false,
-	// 		store: new sequelizeStore({ db: sequelize }),
-	// 		cookie: {},
-	// 	})
-	// );
+	app.use(
+		session({
+			secret: ['this_is_the_longest_phrase_of_mine__next7'],
+			saveUninitialized: false,
+			resave: false,
+			store:sessionStorage ,
+			cookie: {},
+		})
+	);
 	app.use(
 		multer({ storage: multerStorage, fileFilter: multerFilter }).single('image')
 	);
 	app.use(cookieParser());
-	// app.use(csrf());
+	app.use(csrf());
 	app.use(flash());
 
-	// for working case 
-	app.use((req,res,next)=>{
-		console.log(req.baseUrl,'baseeeeeeeeee')
-		next();
-	})
-
+	
 	app.use(async (req, res, next) => {
 		if (req.session.isLoggedIn) {
-			const userSaved = req.session.user;
-			res.locals.user = userSaved;
-			const user = await User.findOne({ where: { email: userSaved.email } });
-			if (user.password === userSaved.password) req.user = user;
+			res.locals.user = req.session.user;			
 		}
 		res.locals.csrfToken = req.csrfToken();
 		res.locals.authentication = req.session?.isLoggedIn;
 		next();
 	});
+	mongodbConnect((client)=>{
+		app.listen(8080)
+	})
 	app.use('/admin', adminRoutes);
 	app.use(shopRoutes);
 	app.use(authRoutes);
@@ -113,65 +105,12 @@ const main = function () {
 	app.use('/500', errorController.get500);
 	app.use(errorController.get404);
 	app.use((err, req, res, next) => {
-		// console.log(err);
+		console.log(err);
 		res.redirect('/500');
 	});
 
-	Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
-	User.hasMany(Product);
-
-	User.hasOne(Cart);
-	Cart.belongsTo(User, { onDelete: 'CASCADE', constraints: true });
-
-	Cart.belongsToMany(Product, { through: CartItem });
-	Product.belongsToMany(Cart, { through: CartItem });
-
-	// sequelize
-	// 	// .sync({ force: true })
-	// 	.sync()
-	// 	.then(() => {})
-	// 	.catch((err) => console.log(err));
-
-	app.listen(8080);
-	// -------------------
-
-	const sender = async () => {
-		const info = await transporter.sendMail({
-			to: 'nati7fekadu@gmail.com',
-			from: 'forprojectnatty@gmail.com',
-			subject: 'email trial',
-			html: '<h1>email sent</h1>',
-		});
-		console.log(info);
-	};
-	const  { CourierClient } = require('@trycourier/courier')
-	const sender2 = async()=>{
-		
-
-const courier = CourierClient({ authorizationToken: "<AUTH_TOKEN>" }); // get from the Courier UI
-
-// Example: send a basic message to an email recipient
-const { requestId } = await courier.send({
-  message: {
-    to: {
-      data: {
-        name: "Marty",
-      },
-      email: "marty_mcfly@email.com",
-    },
-    content: {
-      title: "Back to the Future",
-      body: "Oh my {{name}}, we need 1.21 Gigawatts!",
-    },
-    routing: {
-      method: "single",
-      channels: ["email"],
-    },
-  },
-});
-	}
-	// sender();
+	
 	
 
-};
-main();
+	
+	

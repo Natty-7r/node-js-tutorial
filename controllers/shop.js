@@ -1,39 +1,31 @@
-const Product = require('../models/product');
-const Cart = require('../models/cart');
-const url = require('url');
-const path = require('path');
-const rootDir = require('../util/path');
-const { render } = require('pug');
-const { truncate } = require('../models/cart');
+// const Product = require('../models/product');
+// const Cart = require('../models/cart');
+// const url = require('url');
+// const path = require('path');
+// const rootDir = require('../util/path');
+// const { render } = require('pug');
+// const { truncate } = require('../models/cart');
+const e = require('connect-flash');
 const fs = require('fs');
-const { dirname } = require('path');
-const { query } = require('express');
+const Product = require('../models/product');
+// const { dirname } = require('path');
 
-exports.getProducts = (req, res, next) => {
-	const productPerPage = 2;
-	const pageNumber = req.query?.page ?? 1;
 
-	Product.count({ where: { userId: req.user.id } })
-		.then((productsNumber) => {
-			const pages = Math.round(productsNumber / productPerPage);
-			return Product.findAll({
-				offset: (pageNumber - 1) * productPerPage,
-				limit: productPerPage,
-				where: { userId: req.user.id },
-			}).then((products) => {
-				return res.render('shop/product-list', {
-					pageTitle: 'All products',
-					path: '/products',
-					prods: products,
-					pages: pages,
-					pageNumber,
-					linkPath: '/products',
-				});
-			});
-		})
-		.catch((err) => console.error(err));
-};
-
+exports.getProducts = async (req, res, next) => {
+	try{
+   const products =await  Product.findAll()
+	return res.render('shop/product-list', {
+		pageTitle: 'products',
+		path: '/products',
+		prods: products,
+		pages: 1,
+		pageNumber:1,
+		linkPath: '/products',
+	});
+} catch (error) {
+	next(error)	
+}
+}
 exports.postCart = async (req, res, next) => {
 	// Cart.addProduct(prodId).then(() => {
 	// 	res.redirect('/cart');
@@ -123,37 +115,32 @@ exports.deleteAllCart = (req, res, next) => {
 		})
 		.then((result) => res.redirect('/cart'));
 };
-exports.getProductDetail = (req, res, next) => {
+exports.getProductDetail = async  (req, res, next) => {
 	const prodId = req.params.productId;
-	req.user.getProducts({ where: { id: prodId } }).then(([product]) => {
+    const product = await Product.findById(prodId);
 		res.render('shop/product-detail', {
 			product,
 			pageTitle: 'Product Detail',
 			path: `/products`,
 		});
-	});
+
 };
 
-exports.getIndex = (req, res, next) => {
-	const productPerPage = 2;
-	const pageNumber = req.query?.page ?? 1;
+exports.getIndex =async  (req, res, next) => {
+	try {
 
-	Product.count().then((productsNumber) => {
-		const pages = Math.round(productsNumber / productPerPage);
-		return Product.findAll({
-			offset: (pageNumber - 1) * productPerPage,
-			limit: productPerPage,
-		}).then((products) => {
-			return res.render('shop/index', {
-				pageTitle: 'Shop',
-				path: '/',
-				prods: products,
-				pages: pages,
-				pageNumber,
-				linkPath: '/',
-			});
-		});
+   const products =await  Product.findAll()
+	return res.render('shop/index', {
+		pageTitle: 'Shop',
+		path: '/',
+		prods: products,
+		pages: 1,
+		pageNumber:1,
+		linkPath: '/',
 	});
+} catch (error) {
+	next(error)	
+}
 };
 
 exports.getOrders = (req, res, next) => {
