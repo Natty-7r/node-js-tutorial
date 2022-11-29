@@ -140,7 +140,7 @@ exports.editProductPost = async (req, res, next) => {
 			newDescription,
 			newImageUrl,
 			req.session.user._id.toString(),
-			new mongodb.ObjectId(prodId)
+			prodId
 			);
 			const productToDelete  = await  Product.findById(prodId);
 			await product.save();

@@ -17,7 +17,7 @@ class Product {
 		this.price =  price;
 		this.description =  description;
 		this.userId =  userId;
-		this._id = prodId;
+		this._id = prodId ? mongodb.ObjectId(prodId): null;
 	}
 	
     save(){
