@@ -43,10 +43,32 @@ class User{
 	   
 	}
 	getCart(){
-		let totalPrice ;
+		let totalPrice = 0 ;
 		const cartProducts =  this.cart.items;
-		return   this.cart.items ;
+		if(cartProducts.length ==0) totalPrice = null;
+		if(cartProducts.length>0){
+			cartProducts.forEach(product => {
+				totalPrice += +product.price * + product.qty;
+			});
+		}
+		return   {products:this.cart.items,totalPrice} ;
 
+	}
+	deleteCart(prodId){
+		const UserCollection =  getDb().collection('users');	
+		const productIndex =  this.cart.items.findIndex((cp)=>{
+			return cp.id ==  prodId;
+		});
+
+		const cartItems =  this.cart.items;
+		if(+cartItems[productIndex].qty > 1){
+			cartItems[productIndex].qty =  cartItems[productIndex].qty-1;
+		}		
+		else if(+cartItems[productIndex].qty == 1){
+			cartItems.splice(productIndex,1)
+		}
+		UserCollection.updateOne({_id: new ObjectId(this._id)},{$set:{cart:{items: cartItems}}})
+			
 	}
 
 }

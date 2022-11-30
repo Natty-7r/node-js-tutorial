@@ -43,51 +43,23 @@ exports.postCart = async (req, res, next) => {
 exports.getCart = async (req, res, next) => {
 	const userOld=  req.session.user;	
 	const user =  new User(userOld.email,userOld.password,userOld.username,userOld.cart,userOld._id);
-	user.getCart();
+	const cart = user.getCart();
 	
-	// const isLoggedIn = req.session.isLoggedIn;
-	// let totalPrice;
-	// req.user
-	// 	.getCart()
-	// 	.then((cart) => {
-	// 		if (!cart) return [];
-	// 		return cart?.getProducts();
-	// 	})
-	// 	.then((cartProducts) => {
-	// 		if (cartProducts.length > 0) {
-	// 			totalPrice = cartProducts.reduce(
-	// 				(sum, cartProduct) =>
-	// 					sum + cartProduct.price * cartProduct.cartItem.quantity,
-	// 				0
-	// 			);
-	// 		}
-	// 		res.render('shop/cart', {
-	// 			cart: { products: cartProducts, totalPrice },
-	// 			path: '/cart',
-	// 			pageTitle: 'Your Cart',
-	// 		});
-	// 	});
+	res.render('shop/cart', {
+	    cart,
+		path: '/cart',
+		pageTitle: 'Your Cart',
+	});
+		
 	
 };
 exports.deleteCart = (req, res, next) => {
 	const cartId = req.params.prodId;
-	req.user
-		.getCart()
-		.then((cart) => cart.getProducts({ where: { id: cartId } }))
-		.then((cartProducts) => {
-			const quantity = cartProducts[0].cartItem.quantity;
-			console.log(quantity);
-			if (quantity > 1) {
-				cartProducts[0].cartItem.decrement({ quantity: 1 });
-				res.redirect('/cart');
-			}
-			if (quantity == 1) {
-				cartProducts[0].cartItem.destroy({
-					where: { productId: cartId },
-				});
-				res.redirect('/cart');
-			}
-		});
+	const userOld=  req.session.user;	
+	const user =  new User(userOld.email,userOld.password,userOld.username,userOld.cart,userOld._id);
+	user.deleteCart(cartId);
+	res.redirect('/cart');
+	
 };
 exports.deleteAllCart = (req, res, next) => {
 	req.user
