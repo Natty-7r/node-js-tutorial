@@ -8,6 +8,7 @@
 const e = require('connect-flash');
 const fs = require('fs');
 const Product = require('../models/product');
+const User = require('../models/user');
 // const { dirname } = require('path');
 
 
@@ -26,62 +27,47 @@ exports.getProducts = async (req, res, next) => {
 	next(error)	
 }
 }
-exports.postCart = async (req, res, next) => {
-	// Cart.addProduct(prodId).then(() => {
-	// 	res.redirect('/cart');
-	// });
-	const prodId = +req.body.productId;
-	let fetchedCart;
-	req.user
-		.getCart()
-		.then((cart) => {
-			fetchedCart = cart;
-			return cart.getProducts({ where: { id: prodId } });
-		})
-		.then((products) => {
-			if (!products || products.length == 0) {
-				return Product.findByPk(prodId).then((newProduct) => {
-					fetchedCart.addProduct(newProduct, { through: { quantity: 1 } });
-					res.redirect('/cart');
-				});
-			}
-			if (products.length > 0) {
-				products[0].cartItem.increment({ quantity: 1 });
-				res.redirect('/cart');
-			}
-		})
-		.catch((err) => console.log(err));
+exports.postCart = async (req, res, next) => {   
+	const prodId = req.body.productId;
+	const userOld=  req.session.user;
+
+	const product =  await Product.findById(prodId);
+	
+	const user =  new User(userOld.email,userOld.password,userOld.username,userOld.cart,userOld._id);
+	
+	user.addToCart(product);
+	res.redirect('/cart');
+
+
 };
-exports.getCart = (req, res, next) => {
-	const isLoggedIn = req.session.isLoggedIn;
-	let totalPrice;
-	req.user
-		.getCart()
-		.then((cart) => {
-			if (!cart) return [];
-			return cart?.getProducts();
-		})
-		.then((cartProducts) => {
-			if (cartProducts.length > 0) {
-				totalPrice = cartProducts.reduce(
-					(sum, cartProduct) =>
-						sum + cartProduct.price * cartProduct.cartItem.quantity,
-					0
-				);
-			}
-			res.render('shop/cart', {
-				cart: { products: cartProducts, totalPrice },
-				path: '/cart',
-				pageTitle: 'Your Cart',
-			});
-		});
-	// Cart.getCart().then((cart) => {
-	// 	res.render('shop/cart', {
-	// 		cart,
-	// 		path: '/cart',
-	// 		pageTitle: 'Your Cart',
+exports.getCart = async (req, res, next) => {
+	const userOld=  req.session.user;	
+	const user =  new User(userOld.email,userOld.password,userOld.username,userOld.cart,userOld._id);
+	user.getCart();
+	
+	// const isLoggedIn = req.session.isLoggedIn;
+	// let totalPrice;
+	// req.user
+	// 	.getCart()
+	// 	.then((cart) => {
+	// 		if (!cart) return [];
+	// 		return cart?.getProducts();
+	// 	})
+	// 	.then((cartProducts) => {
+	// 		if (cartProducts.length > 0) {
+	// 			totalPrice = cartProducts.reduce(
+	// 				(sum, cartProduct) =>
+	// 					sum + cartProduct.price * cartProduct.cartItem.quantity,
+	// 				0
+	// 			);
+	// 		}
+	// 		res.render('shop/cart', {
+	// 			cart: { products: cartProducts, totalPrice },
+	// 			path: '/cart',
+	// 			pageTitle: 'Your Cart',
+	// 		});
 	// 	});
-	// });
+	
 };
 exports.deleteCart = (req, res, next) => {
 	const cartId = req.params.prodId;
