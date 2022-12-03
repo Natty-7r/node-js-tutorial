@@ -20,6 +20,7 @@
 	const nodemailer = require('nodemailer');
 	const sendgridTransport = require('nodemailer-sendgrid-transport');
 	const mongodbSession =  require('connect-mongodb-session')(session);
+	const mongoose =  require('mongoose');
 
 	// my imports
 	const mainRoot = require('./util/path');
@@ -27,7 +28,7 @@
 	const shopRoutes = require('./routes/shop');
 	const authRoutes = require('./routes/auth');
 	const errorController = require('./controllers/error');
-
+   
 	const {mongodbConnect,getDb}=  require('./path/mongoDb');
 	const Product =  require('./models/product')
 
@@ -108,6 +109,10 @@
 		console.log(err);
 		res.redirect('/500');
 	});
+
+	// mongoose.connect('mongodb://0.0.0.0:27017/')
+	// .then(connectionResult=>console.log('connected '))
+	// .catch(err=>console.log(err,'eeeeee'))
 
 	
 	
