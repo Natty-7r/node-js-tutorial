@@ -87,11 +87,11 @@ exports.getProductDetail = async  (req, res, next) => {
 exports.getIndex =async  (req, res, next) => {
 	try {
 
-   const products =await  Product.findAll()
+//    const products =await  Product.findAll()
 	return res.render('shop/index', {
 		pageTitle: 'Shop',
 		path: '/',
-		prods: products,
+		prods: [],
 		pages: 1,
 		pageNumber:1,
 		linkPath: '/',

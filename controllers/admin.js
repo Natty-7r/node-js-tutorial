@@ -48,7 +48,7 @@ exports.postAddProduct = async (req, res, next) => {
 		const imageUrl = req?.file?.filename;
 		const price = req.body.price;
 		const description = req.body.description;
-		const userId =  req.session.user._id.toString();
+		// const userId =  req.session.user._id.toString();
 
 		const validationError = validationResult(req);
 		if (!validationError.isEmpty()) {
@@ -63,9 +63,11 @@ exports.postAddProduct = async (req, res, next) => {
 					req.flash('product', product);
 				return res.redirect('/admin/add-product');
 			};
-		const product = new  Product(title,price,description,imageUrl,userId);
-		product.save();	
-		res.redirect('/admin/products')
+		const product = new  Product({title:title,price:price,description:description,imageUrl:imageUrl});
+		product.save()
+		.then(saved =>console.log(saved))
+		.catch(error =>console.log(error ))	
+		// res.redirect('/admin/products')
 			
 	} catch (error) {
 		const err = new Error(error);

@@ -89,16 +89,21 @@
 
 	
 	app.use(async (req, res, next) => {
-		if (req.session.isLoggedIn) {
-			res.locals.user = req.session.user;
+	
+		// if (req.session.isLoggedIn) {
+		// 	res.locals.user = req.session.user;
+		// }
+		res.locals.isLoggedIn =  true;
+		res.locals.authentication =  true;
+		req.session.user = res.locals.user={
+			username:'natty-7',
+			email:'nati7fekadu@gmail.com',
 		}
 		res.locals.csrfToken = req.csrfToken();
-		res.locals.authentication = req.session?.isLoggedIn;
+		// res.locals.authentication = req.session?.isLoggedIn;
 		next();
 	});
-	mongodbConnect((client)=>{
-		app.listen(8080)
-	})
+
 	app.use('/admin', adminRoutes);
 	app.use(shopRoutes);
 	app.use(authRoutes);
@@ -110,9 +115,9 @@
 		res.redirect('/500');
 	});
 
-	// mongoose.connect('mongodb://0.0.0.0:27017/')
-	// .then(connectionResult=>console.log('connected '))
-	// .catch(err=>console.log(err,'eeeeee'))
+	mongoose.connect('mongodb://0.0.0.0:27017/shop')
+	.then(connectd=>{app.listen(8080)})
+	.catch(err=>console.log(err))
 
 	
 	

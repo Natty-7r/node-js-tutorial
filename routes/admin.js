@@ -38,11 +38,11 @@ router.get('/delete/:prodId', isAuth, adminController.deleteProduct);
 router.post('/add-product/:prodid', isAuth, adminController.deleteProduct);
 
 // /admin/add-product => POST
-router.get('/add-product', isAuth, adminController.getAddProduct);
+router.get('/add-product', adminController.getAddProduct);
 
 router.post(
 	'/add-product',
-	isAuth,
+	
 	validateAddproduct,
 	adminController.postAddProduct
 );
