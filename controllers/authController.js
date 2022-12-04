@@ -15,7 +15,7 @@ exports.getLogin = (req, res, next) => {
 exports.postLogin = async  (req, res, next) => {
 	const isLoggedIn = false;
 	const { email, password } = req.body;
-    let user  = await User.findUser(email);
+    let user  = await User.findOne({email:email});
 		if (!user) {
 			req.flash('logInError', 'unrecognized Email !');
 			return res.redirect('/login');

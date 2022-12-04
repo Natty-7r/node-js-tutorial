@@ -85,10 +85,6 @@ app.use(async (req, res, next) => {
   if (req.session.isLoggedIn) {
   	res.locals.user = req.session.user;
   }
-  req.session.user = res.locals.user = {
-    username: 'natty-7',
-    email: 'nati7fekadu@gmail.com',
-  }
   res.locals.csrfToken = req.csrfToken()
   res.locals.authentication = req.session?.isLoggedIn;
   next()
