@@ -63,7 +63,7 @@ exports.postAddProduct = async (req, res, next) => {
 					req.flash('product', product);
 				return res.redirect('/admin/add-product');
 			};
-		const product = new  Product({title:title,price:price,description:description,imageUrl:imageUrl});
+		const product = new  Product({title:title,price:price,description:description,imageUrl:imageUrl,owner:{name:'natty',age:21}});
 		product.save()
 		.then(saved =>console.log(saved))
 		.catch(error =>console.log(error ))	
@@ -159,8 +159,9 @@ exports.editProductPost = async (req, res, next) => {
 exports.getProducts = async (req, res, next) => {
 
 		try{
-			const userId =  req.session.user._id;
-			const userProducts =  await Product.findUserProducts(userId);
+			// const userId =  req.session.user._id;
+			// const userProducts =  await Product.findUserProducts(userId);
+			const userProducts  =  await Product.find({});
 			
 			return res.render('admin/products', {
 				pageTitle: 'All products',
