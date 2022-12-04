@@ -60,15 +60,19 @@ exports.postSignup =  async (req, res, next) => {
 		req.flash('signupError', validationError.array()[0].msg);
 		return res.status(422).redirect('/signup');
 	}
-    let user =  await User.findUser(email);
+    let user =  await User.findOne({email:email});
 	if (user) {
 		req.flash('signupError','User exists');
 		return res.status(422).redirect('/signup');
 	}
 	const hashPassword = await bcrytp.hash(password,12);
-	user =  new User(email,hashPassword);
-	 user.save();
-	 user =  await User.findUser(email);
+	 user  = new User({
+		email:email,
+		username: email.split('@')[0],
+		password: hashPassword,
+		cart:{items:[]}
+	});
+	 await  user.save();
 	 req.session.user =  user;
 	 req.session.isLoggedIn = true;
 	 res.redirect('/');
