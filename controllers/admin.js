@@ -136,18 +136,16 @@ exports.editProductPost = async (req, res, next) => {
 				});
 			}
 			
-          const product =  new Product(
-			newTitle,
-			newPrice,
-			newDescription,
-			newImageUrl,
-			req.session.user._id.toString(),
-			prodId
-			);
-			const productToDelete  = await  Product.findById(prodId);
-			await product.save();
+        const productToUpdate=  await  Product.findById(prodId);
+		const oldImageSource =  productToUpdate.imageUrl;
+			productToUpdate.title =  newTitle;
+			productToUpdate.price =  newPrice;
+			productToUpdate.description =  newDescription;			
+			productToUpdate.imageUrl =  newImageUrl;
+		    await 	productToUpdate.save();	 
+			
+	        deleteImageSource(oldImageSource);
 			res.redirect('/admin/products');
-	    deleteImageSource(productToDelete.imageUrl);
 		
 	} catch (error) {
 		const err = new Error(error);
