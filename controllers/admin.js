@@ -65,9 +65,9 @@ exports.postAddProduct = async (req, res, next) => {
 			};
 		const product = new  Product({title:title,price:price,description:description,imageUrl:imageUrl,owner:{name:'natty',age:21}});
 		product.save()
-		.then(saved =>console.log(saved))
+		.then(saved => {res.redirect('/admin/products')})
 		.catch(error =>console.log(error ))	
-		// res.redirect('/admin/products')
+		
 			
 	} catch (error) {
 		const err = new Error(error);
@@ -179,10 +179,11 @@ exports.getProducts = async (req, res, next) => {
 exports.deleteProduct = async (req, res, next) => {
 	try {
 		const prodId = req.params.prodId;
-		const productToDelete = await Product.findById(prodId);
-         deleteImageSource(prodId);
-		 Product.deleteProduct(prodId);
-		res.redirect('/admin/products');
+		const ProductToDelete =await   Product.findById(prodId);
+		deleteImageSource(ProductToDelete.imageUrl);
+		await ProductToDelete.delete();
+	    // const deleteMessage =  await	Product.deleteOne({_id: prodId})
+		 res.redirect('/admin/products');
 		
 	} catch (error) {
 		const err = new Error(error);
