@@ -61,34 +61,14 @@ exports.postCart = async (req, res, next) => {
 	const prodId = req.body.productId;
 	const user = await User.findById(req.session.user._id);
 	const product =  await Product.findById(prodId);
-	let cartProduct;
-
-	let productIndex  =  user.cart.items.findIndex(product=> {
-		return product.productId==prodId;
-	});
-	if(productIndex!=-1){
-      user.cart.items[productIndex].qty++;
-	}
-	else{
-		cartProduct ={
-		productId:product._id.toString(),
-		title:product.title,
-		price:product.price,
-		qty:1,
-	}  ;
-	user.cart.items.push(cartProduct);
-	}
-	await user.save();
+	user.addToCart(product);
 	res.redirect('/cart');
 
 
 };
 exports.getCart = async (req, res, next) => {
 	const user= await User.findById(req.session.user._id);
-	let cart =  user.cart,totalPrice = 0;
-	user.cart.items.forEach(item=> totalPrice+=(+item.qty*+item.price));
-	cart.totalPrice =  totalPrice;
-	
+	let cart = await user.getCart();
 	res.render('shop/cart', {
 	    cart,
 		path: '/cart',
@@ -101,19 +81,8 @@ exports.deleteCart = async (req, res, next) => {
 	const cartId = req.params.prodId;
 	const user =  await User.findById(req.session.user._id);
 	const product =  await Product.findById(cartId);
-
-	let productIndex  =  user.cart.items.findIndex(product=> {
-		return product.productId==cartId;
-	});
-	if(user.cart.items[productIndex].qty>1){
-		user.cart.items[productIndex].qty--;
-	}
-	else{
-		user.cart.items.splice(productIndex,1);
-	}
-	await user.save();
+    await user.deleteCart(product)
 	res.redirect('/cart');
-
 	
 };
 exports.deleteAllCart = (req, res, next) => {
