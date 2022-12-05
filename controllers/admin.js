@@ -8,7 +8,8 @@ const path = require('path');
 const { validationResult } = require('express-validator');
 const { dirname } = require('path');
 const mainRoot = require('../util/path');
-const {getDb, mongodbConnect} =  require('../path/mongoDb')
+const {getDb, mongodbConnect} =  require('../path/mongoDb');
+const { default: mongoose } = require('mongoose');
 
 
 deleteImageSource = async  function (filename) {
@@ -155,12 +156,8 @@ exports.editProductPost = async (req, res, next) => {
 };
 
 exports.getProducts = async (req, res, next) => {
-
 		try{
-			
-			const userProducts  =  await Product.find({}).populate('userId','-_id username');
-			console.log(userProducts)
-			
+			const userProducts  =  await Product.find({userId:( req.session.user._id)});				
 			return res.render('admin/products', {
 				pageTitle: 'All products',
 				path: '/admin/products',

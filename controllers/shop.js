@@ -12,6 +12,7 @@ const mongodb =  require('mongodb');
 const Product = require('../models/product');
 const user = require('../models/user');
 const User = require('../models/user');
+const Order =  require('../models/order');
 // const { dirname } = require('path');
 
 exports.getIndex =async  (req, res, next) => {
@@ -106,6 +107,20 @@ exports.getOrders = (req, res, next) => {
 		path: '/orders',
 		pageTitle: 'Your Orders',
 	});
+};
+
+exports.postOrder = (req, res, next) => {
+	const user =  req.session.user;
+	const order =  new Order({
+		products: user.cart.items,
+		user:{
+			userId:user._id,
+			username: user.username,
+		}
+	})
+	order.save();
+
+	
 };
 
 exports.getCheckout = (req, res, next) => {

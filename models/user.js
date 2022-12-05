@@ -15,6 +15,7 @@ const userSchema =  new Schema({
 		items:[{productId:{ type:Schema.Types.ObjectId, ref:'Product' },title:String,qty:Number,price:Number}]
 	}
 
+
 },{methods:{
 	async deleteCart(product){
 		
