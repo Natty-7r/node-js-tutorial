@@ -48,7 +48,7 @@ exports.postAddProduct = async (req, res, next) => {
 		const imageUrl = req?.file?.filename;
 		const price = req.body.price;
 		const description = req.body.description;
-		// const userId =  req.session.user._id.toString();
+		const userId =  req.session.user._id;
 
 		const validationError = validationResult(req);
 		if (!validationError.isEmpty()) {
@@ -63,7 +63,7 @@ exports.postAddProduct = async (req, res, next) => {
 					req.flash('product', product);
 				return res.redirect('/admin/add-product');
 			};
-		const product = new  Product({title:title,price:price,description:description,imageUrl:imageUrl,owner:{name:'natty',age:21}});
+		const product = new  Product({title:title,price:price,description:description,imageUrl:imageUrl,userId:userId});
 		product.save()
 		.then(saved => {res.redirect('/admin/products')})
 		.catch(error =>console.log(error ))	
@@ -157,9 +157,9 @@ exports.editProductPost = async (req, res, next) => {
 exports.getProducts = async (req, res, next) => {
 
 		try{
-			// const userId =  req.session.user._id;
-			// const userProducts =  await Product.findUserProducts(userId);
-			const userProducts  =  await Product.find({});
+			
+			const userProducts  =  await Product.find({}).populate('userId','-_id username');
+			console.log(userProducts)
 			
 			return res.render('admin/products', {
 				pageTitle: 'All products',
@@ -182,7 +182,6 @@ exports.deleteProduct = async (req, res, next) => {
 		const ProductToDelete =await   Product.findById(prodId);
 		deleteImageSource(ProductToDelete.imageUrl);
 		await ProductToDelete.delete();
-	    // const deleteMessage =  await	Product.deleteOne({_id: prodId})
 		 res.redirect('/admin/products');
 		
 	} catch (error) {

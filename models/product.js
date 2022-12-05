@@ -18,10 +18,10 @@ const productShema = new Schema(
       type: String,
       required: true,
     },
-    owner: {
-      name: String,
-      age: Number,
-    },
+   userId:{
+    type:Schema.Types.ObjectId,
+    ref:'User',
+   }
   },
   {
     methods: {
