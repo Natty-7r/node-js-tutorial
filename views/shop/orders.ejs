@@ -1,9 +1,40 @@
 <%- include('../includes/head.ejs') %>
+<link href="/css/order.css" rel="stylesheet" />
     </head>
 
     <body>
         <%- include('../includes/navigation.ejs') %>
         <main>
-            <h1>Nothing there!</h1>
+            <%if(!orders.||orders.length==0){%>
+                <h2> no order is made yet !</h2>
+            <%}%>
+            <%if(orders.length>0){%>
+                <%orders.forEach(order=>{%>
+                  <div class="order">
+                    <div class="order_header">
+                        <h4 class="order_number">today</h4>
+                        <h4 class="order_data">today</h4>
+                    </div>
+                    
+                    <div class="order_products">
+                        <div class="order_products_header">
+                            <p>title</p>
+                            <p> quantity </p>
+                            <p>price</p>
+                        </div>
+                    <%orders.products.forEach(product=>{%>
+                         <div class="order_products_detail">
+                            <p>title</p>
+                            <p> quantity </p>
+                            <p>price</p>
+                        </div>
+
+                        %<})%>
+                        <h2> total price : 60$</h2>
+                    </div>
+                  </div>
+               <%})%>
+               <h2>total price : 40$</h2>
+            <%}%>
         </main>
         <%- include('../includes/end.ejs') %>

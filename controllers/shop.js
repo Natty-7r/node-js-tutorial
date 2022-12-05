@@ -102,9 +102,15 @@ exports.deleteAllCart = (req, res, next) => {
 
 
 
-exports.getOrders = (req, res, next) => {
+exports.getOrders = async (req, res, next) => {
+	const userOrder =  await Order.find();
+	console.log(userOrder);
+
 	res.render('shop/orders', {
 		path: '/orders',
+		order:{
+			products:[],
+		},
 		pageTitle: 'Your Orders',
 	});
 };
@@ -124,6 +130,7 @@ exports.postOrder = async (req, res, next) => {
 	res.redirect('/cart');   
 	
 };
+
 
 exports.getCheckout = (req, res, next) => {
 	res.render('shop/checkout', {
