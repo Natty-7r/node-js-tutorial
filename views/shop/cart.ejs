@@ -5,13 +5,13 @@
     <body>
         <%- include('../includes/navigation.ejs') %>
         <main class="centered">
-           <%if(!cart|| cart.products.length==0){%>
+           <%if(!cart|| cart.items.length==0){%>
            <h1> No product added to cart</h1>
            <%} else {%>
             <h2>
                 <table>
                     <thead>
-                        <td>Product </td>
+                        <td>productItem </td>
                         <td> Quantity </td>
                         <td><form action="/cart/deleteAll" method="POST">
                             <!-- <input type="hidden" name="_csrf" value="<%=csrfToken%>"/>
@@ -27,15 +27,15 @@
             </h2>
 
            
-          <%cart.products.forEach(product=>{%>
+          <%cart.items.forEach(productItem=>{%>
             <h2>
                 <table>
                     <tbody>
                         <tr>
-                        <td><%= product.title%></td>
-                        <td><%= product.qty%></td>
-                        <td><form action="/cart/<%= product.id%>" method="POST">
-                            <input type="hidden" name="id" value="<%= product.id%>" />
+                        <td><%= productItem.title%></td>
+                        <td><%= productItem.qty%></td>
+                        <td><form action="/cart/<%= productItem.productId%>" method="POST">
+                            <input type="hidden" name="id" value="<%= productItem.id%>" />
                             <input type="hidden" name="_csrf" value="<%=csrfToken%>"/>
                             <input type="submit" value="Delete cart" />
 

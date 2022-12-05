@@ -7,7 +7,10 @@
 // const { truncate } = require('../models/cart');
 const e = require('connect-flash');
 const fs = require('fs');
+const  mongoose  = require('mongoose');
+const mongodb =  require('mongodb');
 const Product = require('../models/product');
+const user = require('../models/user');
 const User = require('../models/user');
 // const { dirname } = require('path');
 
@@ -56,21 +59,35 @@ exports.getProductDetail = async  (req, res, next) => {
 
 exports.postCart = async (req, res, next) => {   
 	const prodId = req.body.productId;
-	const userOld=  req.session.user;
-
+	const user = await User.findById(req.session.user._id);
 	const product =  await Product.findById(prodId);
-	
-	const user =  new User(userOld.email,userOld.password,userOld.username,userOld.cart,userOld._id);
-	
-	user.addToCart(product);
+	let cartProduct;
+
+	let productIndex  =  user.cart.items.findIndex(product=> {
+		return product.productId==prodId;
+	});
+	if(productIndex!=-1){
+      user.cart.items[productIndex].qty++;
+	}
+	else{
+		cartProduct ={
+		productId:product._id.toString(),
+		title:product.title,
+		price:product.price,
+		qty:1,
+	}  ;
+	user.cart.items.push(cartProduct);
+	}
+	await user.save();
 	res.redirect('/cart');
 
 
 };
 exports.getCart = async (req, res, next) => {
-	const userOld=  req.session.user;	
-	const user =  new User(userOld.email,userOld.password,userOld.username,userOld.cart,userOld._id);
-	const cart = user.getCart();
+	const user= await User.findById(req.session.user._id);
+	let cart =  user.cart,totalPrice = 0;
+	user.cart.items.forEach(item=> totalPrice+=(+item.qty*+item.price));
+	cart.totalPrice =  totalPrice;
 	
 	res.render('shop/cart', {
 	    cart,
@@ -80,12 +97,23 @@ exports.getCart = async (req, res, next) => {
 		
 	
 };
-exports.deleteCart = (req, res, next) => {
+exports.deleteCart = async (req, res, next) => {
 	const cartId = req.params.prodId;
-	const userOld=  req.session.user;	
-	const user =  new User(userOld.email,userOld.password,userOld.username,userOld.cart,userOld._id);
-	user.deleteCart(cartId);
+	const user =  await User.findById(req.session.user._id);
+	const product =  await Product.findById(cartId);
+
+	let productIndex  =  user.cart.items.findIndex(product=> {
+		return product.productId==cartId;
+	});
+	if(user.cart.items[productIndex].qty>1){
+		user.cart.items[productIndex].qty--;
+	}
+	else{
+		user.cart.items.splice(productIndex,1);
+	}
+	await user.save();
 	res.redirect('/cart');
+
 	
 };
 exports.deleteAllCart = (req, res, next) => {

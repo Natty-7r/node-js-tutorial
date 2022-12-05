@@ -12,7 +12,7 @@ const userSchema =  new Schema({
 	},
 	password:{type:String,required:true,},
 	cart:{
-		items:[{productId: Schema.Types.ObjectId,title:String,qty:Number,price:Number}]
+		items:[{productId: String,title:String,qty:Number,price:Number}]
 	}
 
 })

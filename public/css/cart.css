@@ -6,6 +6,11 @@ table td {
 	/* text-align: left; */
 	padding-left: 12px;
 }
+table tbody td{
+	
+	font-size: 70%;
+
+}
 table thead td {
 	border-bottom: solid lavender;
 }
