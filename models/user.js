@@ -19,29 +19,28 @@ const userSchema =  new Schema({
 },{methods:{
 	async deleteCart(product){
 		
-	let productIndex  =  this.cart.items.findIndex(productItem=> {
-		return productItem.productId==product._id;
-	});
-	if(this.cart.items[productIndex].qty>1){
-		this.cart.items[productIndex].qty--;
-	}
-	else{
+	let productIndex  =  this.cart.items.findIndex(productItem=> 
+		 product._id.toString()==productItem.productId.toString()
+	);
+	if(this.cart.items[productIndex].qty>1)
+		this.cart.items[productIndex].qty--;	
+	else
 		this.cart.items.splice(productIndex,1);
-	}
+	
 	await this.save();
 	}
 }})
 userSchema.methods.addToCart =async  function (product){
 	let cartProduct;
-	let productIndex  =  this.cart.items.findIndex(productItem=> {
-		return productItem.productId==product._id;
-	});
+	let productIndex  =  this.cart.items.findIndex(productItem=> 
+		product._id.toString()==productItem.productId.toString()
+		);
 	if(productIndex!=-1){
       this.cart.items[productIndex].qty++;
 	}
 	else{
 		cartProduct ={
-		productId:product._id.toString(),
+		productId:product._id,
 		title:product.title,
 		price:product.price,
 		qty:1,
@@ -56,7 +55,6 @@ userSchema.methods.getCart=  async function(){
 	cart.totalPrice =  totalPrice;
 	return cart;
 }
-
 
 module.exports =  mongoose.model('User',userSchema);
 

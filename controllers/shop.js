@@ -99,18 +99,28 @@ exports.deleteAllCart = (req, res, next) => {
 		.then((result) => res.redirect('/cart'));
 };
 
-
-
-
 exports.getOrders = async (req, res, next) => {
-	const userOrder =  await Order.find();
-	console.log(userOrder);
+	let userOrder =  await Order.find(),totalPrice = 0;
+      userOrder =  userOrder.map((order,index)=>{
+      const formatedDate =  new Date(order.date).toLocaleDateString();
+	  order.formatedDate =  formatedDate;
+	  return  order;
+	 })
+	 
+      userOrder =  userOrder.map((order,index)=>{
+		let priceSum =  0;
+		order.products.forEach(product=>
+		priceSum += product.qty * product.price
+		)
+		order.orderPrice =  priceSum;
+		totalPrice += order.orderPrice;
+		return  order;
+	 })
 
 	res.render('shop/orders', {
 		path: '/orders',
-		order:{
-			products:[],
-		},
+		orders:userOrder,
+		totalPrice,
 		pageTitle: 'Your Orders',
 	});
 };
@@ -127,7 +137,7 @@ exports.postOrder = async (req, res, next) => {
 	await order.save();
 	user.cart.items= [];
 	await user.save();
-	res.redirect('/cart');   
+	res.redirect('/orders');   
 	
 };
 
