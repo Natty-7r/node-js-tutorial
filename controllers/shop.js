@@ -109,8 +109,8 @@ exports.getOrders = (req, res, next) => {
 	});
 };
 
-exports.postOrder = (req, res, next) => {
-	const user =  req.session.user;
+exports.postOrder = async (req, res, next) => {
+	const user = await User.findById(req.session.user._id);
 	const order =  new Order({
 		products: user.cart.items,
 		user:{
@@ -118,8 +118,10 @@ exports.postOrder = (req, res, next) => {
 			username: user.username,
 		}
 	})
-	order.save();
-
+	await order.save();
+	user.cart.items= [];
+	await user.save();
+	res.redirect('/cart');   
 	
 };
 
