@@ -13,7 +13,8 @@ const Product = require('../models/product');
 const user = require('../models/user');
 const User = require('../models/user');
 const Order =  require('../models/order');
-// const { dirname } = require('path');
+const path= require('path');
+const dirname =  path.dirname;
 
 exports.getIndex =async  (req, res, next) => {
 	try {
