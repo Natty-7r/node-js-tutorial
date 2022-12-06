@@ -1,13 +1,13 @@
 const fs = require('fs');
-const mongodb =  require('mongodb');
+const path = require('path');
+const dirname =  path.dirname;
+
+const { default: mongoose } = require('mongoose');
+const { validationResult } = require('express-validator');
+
 const Product = require('../models/product');
 const User = require('../models/user');
-const { Op, where } = require('sequelize');
-const path = require('path');
-const { validationResult } = require('express-validator');
-const { dirname } = require('path');
 const mainRoot = require('../util/path');
-const { default: mongoose } = require('mongoose');
 
 
 deleteImageSource = async  function (filename) {
