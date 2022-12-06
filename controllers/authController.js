@@ -1,7 +1,6 @@
 const crypto = require('crypto');
 const bcrytp = require('bcrypt');
 const User = require('../models/user');
-const { Op } = require('sequelize');
 const { validationResult } = require('express-validator');
 
 exports.getLogin = (req, res, next) => {
@@ -92,7 +91,7 @@ exports.postReset = (req, res, next) => {
 		req.flash('resetError', 'invlaid email !');
 		return res.status(422).redirect('/reset');
 	}
-	User.findOne({ where: { email: req.body.email } }).then((user) => {
+	User.findOne({email: req.body.email }).then((user) => {
 		if (!user) {
 			req.flash('resetError', 'unrecognized Email !');
 			return res.status(422).redirect('/reset');
