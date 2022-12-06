@@ -107,7 +107,4 @@ mongoose
     app.listen(8080)
   })
   .catch((err) => console.log(err))
-;(async () => {
-  //   const p = await Product.find().byName('nati')
-  //   const product = new Product(p)
-})()
+

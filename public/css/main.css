@@ -193,6 +193,7 @@ form {
 .btn {
 	display: inline-block;
 	padding: 0.25rem 1rem;
+	margin: 4px;
 	text-decoration: none;
 	font: inherit;
 	border: 1px solid #00695c;

@@ -38,6 +38,11 @@
 	position: absolute;
 	left: 10%;
 	text-decoration: none;
+	border: solid  thin  #00695c;
+	padding: 4px 8px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 .back-to-prouduct:hover {
 	color: rgb(131, 142, 31);
