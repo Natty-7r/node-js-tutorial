@@ -29,14 +29,20 @@ deleteImageSource = async  function (filename) {
 // 
 exports.getProducts = async (req, res, next) => {
 		try{
-			const userProducts  =  await Product.find({userId:( req.session.user._id)});				
+	const productPerPage =  3;
+	const queryPage =  req?.query?.page ?? 1;
+	const productsNum =  await Product.count();
+	const pages =   Math.ceil(productsNum/productPerPage);
+	
+   const products =await  Product.find({})
+			const userProducts  =  await Product.find({userId:( req.session.user._id)}).limit(productPerPage).skip((queryPage-1) * productPerPage);;				
 			return res.render('admin/products', {
 				pageTitle: 'All products',
 				path: '/admin/products',
 				prods: userProducts,
-				pages: 1,
-				pageNumber:1,
-				linkPath: '/products',
+				pages: pages,
+				pageNumber:+queryPage,
+				linkPath: '/admin/products',
 			});
 		}
 		catch(error) {

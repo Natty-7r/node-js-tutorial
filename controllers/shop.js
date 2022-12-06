@@ -14,14 +14,19 @@ const Order =  require('../models/order');
 
 // managing  products 
 exports.getIndex =async  (req, res, next) => {
+	const productPerPage =  3;
+	const queryPage =  req?.query?.page ?? 1;
+	const productsNum =  await Product.count();
+	const pages =   Math.ceil(productsNum/productPerPage);
+	
 	try {
-   const products =await  Product.find({});
+   const products =await  Product.find({}).limit(productPerPage).skip((queryPage-1) * productPerPage);
 	return res.render('shop/index', {
 		pageTitle: 'Shop',
 		path: '/',
 		prods: products,
-		pages: 1,
-		pageNumber:1,
+		pages: pages,
+		pageNumber: +queryPage ,
 		linkPath: '/',
 	});
 } catch (error) {
@@ -30,13 +35,18 @@ exports.getIndex =async  (req, res, next) => {
 };
 exports.getProducts = async (req, res, next) => {
 	try{
-   const products =await  Product.find()
+	const productPerPage =  3;
+	const queryPage =  req?.query?.page ?? 1;
+	const productsNum =  await Product.count();
+	const pages =   Math.ceil(productsNum/productPerPage);
+	
+   const products =await  Product.find({}).limit(productPerPage).skip((queryPage-1) * productPerPage);
 	return res.render('shop/product-list', {
 		pageTitle: 'products',
 		path: '/products',
 		prods: products,
-		pages: 1,
-		pageNumber:1,
+		pages: pages,
+		pageNumber:+queryPage,
 		linkPath: '/products',
 	});
 } catch (error) {

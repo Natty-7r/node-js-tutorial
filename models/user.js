@@ -13,7 +13,9 @@ const userSchema =  new Schema({
 	password:{type:String,required:true,},
 	cart:{
 		items:[{productId:{ type:Schema.Types.ObjectId, ref:'Product' },title:String,qty:Number,price:Number}]
-	}
+	},
+	resetToken: String,
+	resetTokenExpiration: Date
 
 
 },{methods:{
