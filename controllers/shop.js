@@ -12,6 +12,7 @@ const user = require('../models/user');
 const User = require('../models/user');
 const Order =  require('../models/order');
 
+// managing  products 
 exports.getIndex =async  (req, res, next) => {
 	try {
    const products =await  Product.find({});
@@ -27,7 +28,6 @@ exports.getIndex =async  (req, res, next) => {
 	next(error)	
 }
 };
-
 exports.getProducts = async (req, res, next) => {
 	try{
    const products =await  Product.find()
@@ -54,15 +54,8 @@ exports.getProductDetail = async  (req, res, next) => {
 
 };
 
-exports.postCart = async (req, res, next) => {   
-	const prodId = req.body.productId;
-	const user = await User.findById(req.session.user._id);
-	const product =  await Product.findById(prodId);
-	user.addToCart(product);
-	res.redirect('/cart');
 
-
-};
+// managing carts 
 exports.getCart = async (req, res, next) => {
 	const user= await User.findById(req.session.user._id);
 	let cart = await user.getCart();
@@ -74,6 +67,16 @@ exports.getCart = async (req, res, next) => {
 		
 	
 };
+exports.postCart = async (req, res, next) => {   
+	const prodId = req.body.productId;
+	const user = await User.findById(req.session.user._id);
+	const product =  await Product.findById(prodId);
+	user.addToCart(product);
+	res.redirect('/cart');
+
+
+};
+
 exports.deleteCart = async (req, res, next) => {
 	const cartId = req.params.prodId;
 	const user =  await User.findById(req.session.user._id);
@@ -95,6 +98,7 @@ exports.deleteAllCart = (req, res, next) => {
 		.then((result) => res.redirect('/cart'));
 };
 
+// managing orders  
 exports.getOrders = async (req, res, next) => {
 	let userOrder =  await Order.find(),totalPrice = 0;
       userOrder =  userOrder.map((order,index)=>{

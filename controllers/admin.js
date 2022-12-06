@@ -1,15 +1,18 @@
+// core modules imports 
 const fs = require('fs');
 const path = require('path');
 const dirname =  path.dirname;
 
-const { default: mongoose } = require('mongoose');
+//  third patty module imports 
+const mongoose = require('mongoose');
 const { validationResult } = require('express-validator');
 
+// my imports 
 const Product = require('../models/product');
 const User = require('../models/user');
 const mainRoot = require('../util/path');
 
-
+//  helper functions 
 deleteImageSource = async  function (filename) {
 	const filePath = path.join(
 		dirname(process.mainModule.filename),
@@ -23,7 +26,25 @@ deleteImageSource = async  function (filename) {
 	});
 };
 
-//-
+// 
+exports.getProducts = async (req, res, next) => {
+		try{
+			const userProducts  =  await Product.find({userId:( req.session.user._id)});				
+			return res.render('admin/products', {
+				pageTitle: 'All products',
+				path: '/admin/products',
+				prods: userProducts,
+				pages: 1,
+				pageNumber:1,
+				linkPath: '/products',
+			});
+		}
+		catch(error) {
+			const err = new Error(error);
+			err.statusCode = 500;
+			return next(err);
+		};
+};
 exports.getAddProduct = (req, res, next) => {
 	try {
 		res.render('admin/add-product', {
@@ -153,24 +174,6 @@ exports.editProductPost = async (req, res, next) => {
 	}
 };
 
-exports.getProducts = async (req, res, next) => {
-		try{
-			const userProducts  =  await Product.find({userId:( req.session.user._id)});				
-			return res.render('admin/products', {
-				pageTitle: 'All products',
-				path: '/admin/products',
-				prods: userProducts,
-				pages: 1,
-				pageNumber:1,
-				linkPath: '/products',
-			});
-		}
-		catch(error) {
-			const err = new Error(error);
-			err.statusCode = 500;
-			return next(err);
-		};
-};
 exports.deleteProduct = async (req, res, next) => {
 	try {
 		const prodId = req.params.prodId;
