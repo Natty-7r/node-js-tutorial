@@ -3,7 +3,6 @@ const bcrytp = require('bcrypt');
 const User = require('../models/user');
 const { Op } = require('sequelize');
 const { validationResult } = require('express-validator');
-const {getDb} =  require('../path/mongoDb')
 
 exports.getLogin = (req, res, next) => {
 	res.render('../views/auth/login.ejs', {
@@ -13,7 +12,7 @@ exports.getLogin = (req, res, next) => {
 	});
 };
 exports.postLogin = async  (req, res, next) => {
-	const isLoggedIn = false;
+	let isLoggedIn = false;
 	const { email, password } = req.body;
     let user  = await User.findOne({email:email});
 		if (!user) {
