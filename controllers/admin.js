@@ -7,7 +7,6 @@ const path = require('path');
 const { validationResult } = require('express-validator');
 const { dirname } = require('path');
 const mainRoot = require('../util/path');
-const {getDb, mongodbConnect} =  require('../path/mongoDb');
 const { default: mongoose } = require('mongoose');
 
 
