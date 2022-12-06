@@ -137,6 +137,13 @@ exports.postOrder = async (req, res, next) => {
 	
 };
 
+exports.removeOrder = async (req, res, next) => {
+	const orderId =  req.params.orderId;
+	const order =  await Order.deleteOne({_id:orderId});
+	res.redirect('/orders');   
+	
+};
+
 
 exports.getCheckout = (req, res, next) => {
 	res.render('shop/checkout', {

@@ -21,4 +21,5 @@ table thead td {
 	text-decoration: none;
 	background-color: white;
 	box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.083);
+	border: solid  #00695c;
 }

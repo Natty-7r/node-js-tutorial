@@ -1,6 +1,5 @@
 const fs = require('fs');
 const mongodb =  require('mongodb');
-const Cart = require('../models/cart');
 const Product = require('../models/product');
 const User = require('../models/user');
 const { Op, where } = require('sequelize');
