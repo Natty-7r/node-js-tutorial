@@ -120,10 +120,9 @@ exports.postReset = (req, res, next) => {
 exports.getNewPassword = (req, res, next) => {
 	const resetToken = req.params.resetToken;
 	User.findOne({
-		where: {
 			resetToken: resetToken,
-			resetTokenExpiration: { [Op.gte]: Date.now() },
-		},
+			resetTokenExpiration: {$gt: Date.now() },
+		
 	}).then((user) => {
 		if (!user)
 			return res.render('../views/auth/reset.ejs', {
@@ -135,25 +134,25 @@ exports.getNewPassword = (req, res, next) => {
 			pageTitle: 'Reset',
 			path: '/reset',
 			logInError: '',
-			username: user.username,
+			email: user.email,
 		});
 	});
 };
 exports.resetPassword = (req, res, next) => {
 	try {
-		const { password, confirmPassword, username } = req.body;
+		const { password, confirmPassword, email } = req.body;
 		const validationError = validationResult(req);
 		if (!validationError.isEmpty()) {
 			return res.render('../views/auth/resetDone.ejs', {
 				pageTitle: 'Reset',
 				path: '/reset',
 				logInError: validationError.array()[0].msg,
-				username,
+				email,
 			});
 		}
 
 		let userFound;
-		User.findOne({ where: { username } })
+		User.findOne({ email :email })
 			.then((user) => {
 				userFound = user;
 				return bcrytp.hash(password, 12);
