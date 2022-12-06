@@ -1,16 +1,20 @@
-//  core module imports 
-const fs = require('fs');
-const path= require('path');
-const dirname =  path.dirname;
-
-// third party module imports 
+// const Product = require('../models/product');
+// const Cart = require('../models/cart');
+// const url = require('url');
+// const path = require('path');
+// const rootDir = require('../util/path');
+// const { render } = require('pug');
+// const { truncate } = require('../models/cart');
 const e = require('connect-flash');
+const fs = require('fs');
 const  mongoose  = require('mongoose');
-// my imports(models)
+const mongodb =  require('mongodb');
 const Product = require('../models/product');
 const user = require('../models/user');
 const User = require('../models/user');
 const Order =  require('../models/order');
+const path= require('path');
+const dirname =  path.dirname;
 
 exports.getIndex =async  (req, res, next) => {
 	try {
