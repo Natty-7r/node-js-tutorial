@@ -27,8 +27,7 @@ const shopRoutes = require('./routes/shop')
 const authRoutes = require('./routes/auth')
 const errorController = require('./controllers/error')
 
-const { mongodbConnect, getDb } = require('./path/mongoDb')
-const Product = require('./models/product')
+
 
 const multerStorage = multer.diskStorage({
   destination: (req, file, cb) => {
