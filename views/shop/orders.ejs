@@ -24,15 +24,19 @@
                             <h4 class="header_price">price</h4>
                             <h4 class="header_quantity"> quantity </h4>
                         </div>
+                        <div class="order_product">
                     <%order.products.forEach(product=>{%>
-                         <div class="order_products_detail">
-                            <p class="header_title"><%=product.title%></p>
-                            <p class="header_price"><%=product.price%></p>
-                            <p class="heaer_quantity"> <%=product.qty%> </p>
+                              <div class="order_products_detail">
+                                  <p class="header_title"><%=product.title%></p>
+                                  <p class="header_price"><%=product.price%></p>
+                                  <p class="heaer_quantity"> <%=product.qty%> </p>
+                                </div>
+                                <%})%>
+                            </div>
+                        <div class="order_products_footer">
+                            <h4 class="order_total_price"> Order price : <%=order.orderPrice%>$</h4>
+                            <a href="removeOrder/<%=order._id%>" class="orderAccept_btn"> confrim accepted</a>
                         </div>
-                        <%})%>
-                        <h4 class="order_total_price"> Order price : <%=order.orderPrice%>$</h4>
-                        <a href="removeOrder/<%=order._id%>" class="orderAccept_btn"> confrim accepted</a>
                     </div>
                   </div>
                <%})%>

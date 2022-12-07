@@ -8,7 +8,6 @@
 .orders{
     display: flex;
     flex-flow: row wrap;
-    align-items: center;
     justify-content:center ;
     gap:20px;
     
@@ -16,9 +15,9 @@
 .order{
     background: white;
     width:300px;
+    height: auto;
     box-shadow:  0px 10px 20px  rgba(0, 0, 0, 0.166) ; 
-    border-radius: 5px;   
-    width:300px;
+    border-radius: 5px;
 }
 .order_header{
     background-color:#00695c;
@@ -32,12 +31,16 @@
     text-transform: capitalize;
 }
 .order_products{
+    display: flex;
+    flex-flow: column;
+    justify-content: space-between;
+    height: 300px;
 }
 .order_products_header {
     display: flex;
     justify-content: space-between;
     padding:0px 10px;
-     gap:5px;
+    gap:5px;
     text-align: center;
     
  background-color:#00695c;
@@ -64,9 +67,15 @@ padding-left: 10px;
 
 }
 
+.order_product{
+    height: 60%;
+    overflow-y:auto;
+}
 .order_products_detail{
+    margin-bottom: 1px;
     display: flex;
     gap:5px;
+    margin: 0px;box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.127);
 }
 .order_products_detail p{
 text-align: left;
@@ -81,6 +90,13 @@ padding-left: 10px;
 .order_products_detail .header_quantity{
     flex-basis: 20%;   
 }
+.order_products_footer{
+    justify-self: flex-end;
+    margin-bottom: 0px;
+    margin-top: auto;
+    border:solid thin red;
+    height: 30%;
+}
 
 .order_total_price{
     margin: 10px auto;
@@ -94,4 +110,8 @@ padding-left: 10px;
     padding: 8px 16px;
     border: solid  #00695c;
     text-transform: capitalize;
+}
+.orderAccept_btn:hover{
+    background-color: #00695c;
+    color:white;;
 }
